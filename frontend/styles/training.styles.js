@@ -1,4 +1,19 @@
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
+
+const dropDown = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+`;
 
 export const ContentContainer = styled.div`
   width: 100%;
@@ -25,6 +40,7 @@ export const Title = styled.h1`
   margin-bottom: 30px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 0.8s ease-out;
 
   @media (max-width: 768px) {
     font-size: 5vw;
@@ -92,6 +108,7 @@ export const SectionTitle = styled.h2`
   margin-bottom: 16px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 0.9s ease-out;
 
   @media (max-width: 768px) {
     font-size: 5vw;
@@ -143,6 +160,7 @@ export const ModuleTitle = styled.h3`
   margin-bottom: 12px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 1s ease-out;
 
   @media (max-width: 768px) {
     font-size: 4vw;
@@ -160,6 +178,7 @@ export const SubmoduleTitle = styled.h4`
   margin-bottom: 8px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 1.1s ease-out;
 
   @media (max-width: 768px) {
     font-size: 4vw;
@@ -196,6 +215,7 @@ export const MaterialTitle = styled.h4`
   margin-bottom: 6px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 1.2s ease-out;
 
   @media (max-width: 768px) {
     font-size: 4vw;
@@ -213,6 +233,7 @@ export const MaterialDescription = styled.p`
   margin-bottom: 6px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 1.3s ease-out;
 
   @media (max-width: 768px) {
     font-size: 3vw;
@@ -231,6 +252,7 @@ export const MaterialRoles = styled.p`
   font-style: italic;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 1.4s ease-out;
 
   @media (max-width: 768px) {
     font-size: 3vw;
@@ -249,6 +271,7 @@ export const MaterialLink = styled.a`
   margin-right: 8px;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 1.5s ease-out;
 
   &:hover {
     text-decoration: underline;
@@ -277,6 +300,7 @@ export const ErrorBadge = styled.div`
   margin-right: auto;
   word-wrap: break-word;
   overflow: hidden;
+  animation: ${dropDown} 0.7s ease-out;
 
   @media (max-width: 768px) {
     font-size: 14px;

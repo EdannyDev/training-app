@@ -112,8 +112,8 @@ const FAQs = () => {
       )}
 
       <FAQList>
-        {filteredFaqs.map(({ _id, question, answer }) => (
-          <FAQItem key={_id}>
+        {filteredFaqs.map(({ _id, question, answer }, index) => (
+          <FAQItem key={_id} delay={index * 0.1}>
             <Question>{question}</Question>
             <Answer>{answer}</Answer>
             <Divider />

@@ -1,4 +1,16 @@
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
+
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 export const Container = styled.div`
   width: 100%;
@@ -26,6 +38,7 @@ export const Title = styled.h1`
   text-align: center;
   color: #333;
   margin-bottom: 30px;
+  animation: ${fadeInUp} 0.8s ease-out;
 
   @media (max-width: 768px) {
     font-size: 1.8rem;
@@ -109,6 +122,8 @@ export const FAQItem = styled.div`
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
+  animation: ${fadeInUp} 0.6s ease-out forwards;
+  animation-delay: ${(props) => props.delay || 0}s;
 
   @media (max-width: 768px) {
     margin-bottom: 15px;
@@ -185,6 +200,7 @@ export const ErrorBadge = styled.div`
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
+  animation: ${fadeInUp} 0.5s ease-out;
 
   @media (max-width: 768px) {
     font-size: 14px;
