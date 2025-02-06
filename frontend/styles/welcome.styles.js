@@ -61,7 +61,7 @@ export const Header = styled.header`
 export const MainContent = styled.div`
   button {
     padding: 15px 30px;
-    font-size: 1.1rem;
+    font-size: 18px;
     background: #ff9800;
     color: #fff;
     border: none;
@@ -218,6 +218,7 @@ export const Overlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
   z-index: 999;
 `;

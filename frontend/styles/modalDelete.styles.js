@@ -1,6 +1,26 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
+const fadeInScale = keyframes`
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const backdropBlur = keyframes`
+  0% {
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    backdrop-filter: blur(5px);
+  }
+`;
+
 const shake = keyframes`
   0% { transform: rotate(0deg); }
   25% { transform: rotate(10deg); }
@@ -21,6 +41,7 @@ export const ModalOverlay = styled.div`
   align-items: center;
   z-index: 1000;
   padding: 20px;
+  animation: ${backdropBlur} 0.5s ease-out forwards;
 `;
 
 export const ModalContainer = styled.div`
@@ -33,6 +54,7 @@ export const ModalContainer = styled.div`
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+  animation: ${fadeInScale} 0.4s ease-out;
 
   @media (max-width: 768px) {
     width: 95%;

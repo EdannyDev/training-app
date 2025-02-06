@@ -14,7 +14,7 @@ import {
   Logo,
 } from '../frontend/styles/welcome.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
 
 const Welcome = () => {
   const router = useRouter();
@@ -61,7 +61,7 @@ const Welcome = () => {
       </Header>
       <MainContent>
         <button onClick={handleButtonClick}>
-          <FontAwesomeIcon icon={faArrowRight} style={{ marginRight: '8px' }} />
+          <FontAwesomeIcon icon={faRightToBracket} style={{ marginRight: '5px' }} />
           Comenzar
         </button>
       </MainContent>
@@ -77,17 +77,17 @@ const Welcome = () => {
             <PopupBody>
               {user.role === 'admin' ? (
                 <p>
-                  ¡Bienvenido, <strong>{user.role}</strong>! Como administrador, tienes el control total sobre el proceso de capacitación. Desde aquí podrás gestionar los recursos, monitorear el progreso y optimizar el uso del ERP Nyx para DIMMMSA.
+                  Bienvenido, <strong>{user.role}</strong>. Como personal de RH, tienes el acceso total para gestionar la capacitación y optimizar el uso del ERP Nyx en DIMMMSA.
                 </p>
               ) : (
                 <p>
-                  Bienvenido, <strong>{user.role}</strong>. Como parte del equipo, tendrás acceso a todo lo necesario para aprender y utilizar el ERP Nyx de forma efectiva.
+                  Bienvenido, <strong>{user.role}</strong>. Como parte del equipo de ventas, tendrás acceso a todo lo necesario para aprender y utilizar el ERP Nyx de forma efectiva.
                 </p>
               )}
             </PopupBody>
             <PopupFooter>
               <CloseButton onClick={() => setShowPopup(false)}>
-                <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '8px' }} />
+                <FontAwesomeIcon icon={faCheck} style={{ marginRight: '5px' }} />
                 Entendido
               </CloseButton>
             </PopupFooter>
