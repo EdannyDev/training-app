@@ -12,6 +12,7 @@ import {
   Overlay,
   CloseButton,
   Logo,
+  ContentWrapper,
 } from '../frontend/styles/welcome.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faRightToBracket } from '@fortawesome/free-solid-svg-icons';
@@ -20,6 +21,7 @@ const Welcome = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [showPopup, setShowPopup] = useState(true);
+  const [popupClosed, setPopupClosed] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -51,24 +53,33 @@ const Welcome = () => {
     }
   };
 
+  const handleClosePopup = () => {
+    setShowPopup(false);
+    setPopupClosed(true);
+  };
+
   if (!user) return null;
 
   return (
     <WelcomeContainer>
-      <Header>
-        <h1>¡Bienvenido a la sección de capacitación!</h1>
-        <p>Capacitación integral para el uso correcto del ERP de DIMMMSA.</p>
-      </Header>
-      <MainContent>
-        <button onClick={handleButtonClick}>
-          <FontAwesomeIcon icon={faRightToBracket} style={{ marginRight: '5px' }} />
-          Comenzar
-        </button>
-      </MainContent>
+      {popupClosed && (
+        <ContentWrapper>
+          <Header>
+            <h1>¡Bienvenido a la sección de capacitación!</h1>
+            <p>Capacitación integral para el uso correcto del ERP de DIMMMSA.</p>
+          </Header>
+          <MainContent>
+            <button onClick={handleButtonClick}>
+              <FontAwesomeIcon icon={faRightToBracket} style={{ marginRight: '5px' }} />
+              Comenzar
+            </button>
+          </MainContent>
+        </ContentWrapper>
+      )}
 
       {showPopup && (
         <>
-          <Overlay onClick={() => setShowPopup(false)} />
+          <Overlay onClick={handleClosePopup} />
           <Popup>
             <PopupHeader>
               <Logo src="/img/logo.png" alt="Logo de DIMMMSA" />
@@ -86,7 +97,7 @@ const Welcome = () => {
               )}
             </PopupBody>
             <PopupFooter>
-              <CloseButton onClick={() => setShowPopup(false)}>
+              <CloseButton onClick={handleClosePopup}>
                 <FontAwesomeIcon icon={faCheck} style={{ marginRight: '5px' }} />
                 Entendido
               </CloseButton>

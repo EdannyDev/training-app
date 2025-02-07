@@ -1,4 +1,25 @@
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
+
+const fadeInScale = keyframes`
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const backdropBlur = keyframes`
+  0% {
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    backdrop-filter: blur(5px);
+  }
+`;
 
 export const FormContainer = styled.form`
   max-width: 400px;
@@ -170,6 +191,7 @@ export const Modal = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 999;
+  animation: ${backdropBlur} 0.5s ease-out forwards;
 `;
 
 export const ModalContent = styled.div`
@@ -178,6 +200,7 @@ export const ModalContent = styled.div`
   border-radius: 8px;
   width: 400px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  animation: ${fadeInScale} 0.4s ease-out;
 
   @media (max-width: 768px) {
     width: 350px;

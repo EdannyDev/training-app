@@ -12,6 +12,17 @@ const fadeIn = keyframes`
   }
 `;
 
+const slideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
 export const WelcomeContainer = styled.div`
   height: 100vh;
   display: flex;
@@ -29,6 +40,7 @@ export const WelcomeContainer = styled.div`
 
 export const Header = styled.header`
   margin-bottom: 30px;
+  animation: ${fadeIn} 1s ease-out;
 
   h1 {
     font-size: 2.5rem;
@@ -210,6 +222,12 @@ export const CloseButton = styled.button`
     padding: 7px 15px;
     font-size: 0.9rem;
   }
+`;
+
+export const ContentWrapper = styled.div`
+  animation: ${slideIn} 1s ease-out;
+  opacity: 0;
+  animation-fill-mode: forwards;
 `;
 
 export const Overlay = styled.div`
