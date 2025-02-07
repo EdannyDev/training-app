@@ -171,6 +171,24 @@ export const ModuleTitle = styled.h3`
   }
 `;
 
+export const NoSubmoduleText = styled.p`
+  font-size: 16px;
+  color: #292929;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  overflow: hidden;
+  animation: ${dropDown} 1.6s ease-out;
+
+  @media (max-width: 768px) {
+    font-size: 3vw;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 4vw;
+  }
+`;
+
 export const SubmoduleTitle = styled.h4`
   font-size: 16px;
   font-weight: 500;

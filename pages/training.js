@@ -16,6 +16,7 @@ import {
   ErrorBadge,
   InputSearch,
   IconWrapper,
+  NoSubmoduleText
 } from '../frontend/styles/training.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -153,7 +154,7 @@ const CapacitationPage = () => {
                         {material.submodule ? (
                           <SubmoduleTitle>Submódulo: {material.submodule}</SubmoduleTitle>
                         ) : (
-                          <p>Sin submódulo</p>
+                          <NoSubmoduleText>Sin submódulo</NoSubmoduleText>
                         )}
                         <div>{renderMaterialLink(material)}</div>
                       </MaterialContainer>
