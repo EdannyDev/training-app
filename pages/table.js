@@ -60,19 +60,15 @@ const TrainingTable = () => {
 
   const handleSearchChange = (e) => {
     let query = e.target.value.trim();
-
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
-
     setSearchTerm(query);
-
     if (query === '') {
       setFilteredTrainings(trainings);
       setNotification(null);
       return;
     }
-
     if (query.length < minLength || query.length > maxLength) {
       setNotification({
         type: 'error',
@@ -83,17 +79,22 @@ const TrainingTable = () => {
     } else {
       setNotification(null);
     }
-
     const filtered = trainings.filter((training) =>
       [training.title, training.description, training.type, training.roles.join(', '), 
        training.originalFileName, training.fileUrl, training.section, training.module, training.submodule]
        .some(val => val?.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-
     setFilteredTrainings(filtered);
   };
 
-  const handlePagination = (pageNumber) => setCurrentPage(pageNumber);
+  const handlePagination = (pageNumber) => {
+    const totalPages = Math.ceil(filteredTrainings.length / 5);
+    if (pageNumber > totalPages) {
+      setCurrentPage(totalPages);
+    } else {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const handleAddTraining = () => router.push('/addTraining');
   const handleGoToFAQ = () => router.push('/faqs');
@@ -108,8 +109,16 @@ const TrainingTable = () => {
       await axios.delete(`http://localhost:5000/api/training/${selectedTraining._id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      setTrainings(trainings.filter(t => t._id !== selectedTraining._id));
+      const updatedTrainings = trainings.filter(t => t._id !== selectedTraining._id);
+      setTrainings(updatedTrainings);
+      setFilteredTrainings(updatedTrainings);
       setModalOpen(false);
+      const totalPages = Math.ceil(updatedTrainings.length / 5);
+      const lastPageWithData = totalPages > 0 ? totalPages : 1;
+      if ((currentPage - 1) * 5 >= updatedTrainings.length) {
+        const newPage = Math.max(currentPage - 1, 1);
+        setCurrentPage(newPage);
+      }
       setNotification({ type: 'success', message: 'Capacitación eliminada exitosamente' });
     } catch (error) {
       setNotification({ type: 'error', message: 'Error al eliminar la capacitación' });

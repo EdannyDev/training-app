@@ -66,18 +66,14 @@ const FAQTable = () => {
 
   const handleSearchChange = (e) => {
     let query = e.target.value.trim();
-
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
-
     setSearchTerm(query);
-
     if (query === '') {
       setNotification(null);
       return;
     }
-
     if (query.length < minLength || query.length > maxLength) {
       setNotification({
         type: 'error',
@@ -99,8 +95,13 @@ const FAQTable = () => {
   const indexOfFirstFAQ = indexOfLastFAQ - faqsPerPage;
   const currentFaqs = filteredFaqs.slice(indexOfFirstFAQ, indexOfLastFAQ);
   const totalPages = Math.ceil(filteredFaqs.length / faqsPerPage);
-
-  const handlePagination = (pageNumber) => setCurrentPage(pageNumber);
+  const handlePagination = (pageNumber) => {
+    if (pageNumber > totalPages) {
+      setCurrentPage(totalPages);
+    } else {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   const handleDeleteClick = (faq) => {
     setSelectedFAQ(faq);
@@ -115,12 +116,16 @@ const FAQTable = () => {
         setModalOpen(false);
         return;
       }
-
       await axios.delete(`http://localhost:5000/api/faqs/${selectedFAQ._id}`, {
         headers: { Authorization: `Bearer ${token}`}, 
       });
-      setFaqs(prevFaqs => prevFaqs.filter(f => f._id !== selectedFAQ._id));
+      const updatedFaqs = faqs.filter(f => f._id !== selectedFAQ._id);
+      setFaqs(updatedFaqs);
       setModalOpen(false);
+      const newTotalPages = Math.ceil(updatedFaqs.length / faqsPerPage);
+      if ((currentPage - 1) * faqsPerPage >= updatedFaqs.length) {
+        setCurrentPage(Math.max(currentPage - 1, 1));
+      }
       setNotification({ message: 'FAQ eliminada correctamente', type: 'success' });
     } catch (error) {
       console.error('Error deleting FAQ:', error);
@@ -130,13 +135,11 @@ const FAQTable = () => {
   };
 
   const handleAddFAQ = () => router.push('/addFAQ');
-
   const handleGoToTraining = () => router.push('/table');
 
   return (
     <Container>
       <Title>Control de FAQs</Title>
-
       <SearchContainer>
         <InputContainer>
           <Input

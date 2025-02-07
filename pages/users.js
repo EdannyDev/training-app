@@ -29,6 +29,7 @@ const UserManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const usersPerPage = 5;
@@ -46,6 +47,8 @@ const UserManagement = () => {
         setUsers(response.data);
       } catch (error) {
         setNotification({ show: true, message: 'Error al cargar usuarios', type: 'error' });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -54,18 +57,14 @@ const UserManagement = () => {
 
   const handleSearch = (e) => {
     let query = e.target.value.trim();
-
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
-
     setSearchTerm(query);
-
     if (query === '') {
       setNotification({ show: false, message: '', type: '' });
       return;
     }
-
     if (query.length < minLength || query.length > maxLength) {
       setNotification({
         show: true,
@@ -89,7 +88,6 @@ const UserManagement = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-
   const handlePagination = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleDeleteClick = (userId) => {
@@ -103,7 +101,13 @@ const UserManagement = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
       })
       .then(() => {
-        setUsers(users.filter((user) => user._id !== userToDelete));
+        const updatedUsers = users.filter((user) => user._id !== userToDelete);
+        setUsers(updatedUsers);
+        const newTotalPages = Math.ceil(updatedUsers.length / usersPerPage);
+        if ((currentPage - 1) * usersPerPage >= updatedUsers.length) {
+          const newPage = Math.max(currentPage - 1, 1);
+          setCurrentPage(newPage);
+        }
         setNotification({ show: true, message: 'Usuario eliminado exitosamente', type: 'success' });
       })
       .catch(() =>
@@ -120,7 +124,6 @@ const UserManagement = () => {
   return (
     <UserTableContainer>
       <UserManagementTitle>Control de Usuarios</UserManagementTitle>
-
       <SearchContainer>
         <InputContainer>
           <Input
@@ -143,45 +146,51 @@ const UserManagement = () => {
         />
       )}
 
-      <UserTable>
-        <UserTableHead>
-          <tr>
-            <UserTableCell>Nombre</UserTableCell>
-            <UserTableCell>Email</UserTableCell>
-            <UserTableCell>Rol</UserTableCell>
-            <UserTableCell>Acciones</UserTableCell>
-          </tr>
-        </UserTableHead>
-        <UserTableBody>
-          {currentUsers.map(({ _id, name, email, role }) => (
-            <UserTableRow key={_id}>
-              <UserTableCell>{truncateText(name, 40)}</UserTableCell>
-              <UserTableCell>{truncateText(email, 40)}</UserTableCell>
-              <UserTableCell>{truncateText(role, 40)}</UserTableCell>
-              <UserTableCell>
-                <UserActionButton className="edit" onClick={() => handleEdit(_id)}>
-                  <FontAwesomeIcon icon={faUserPen} />
-                </UserActionButton>
-                <UserActionButton className="delete" onClick={() => handleDeleteClick(_id)}>
-                  <FontAwesomeIcon icon={faUserXmark} />
-                </UserActionButton>
-              </UserTableCell>
-            </UserTableRow>
-          ))}
-        </UserTableBody>
-      </UserTable>
+      {loading ? (
+        <p>Cargando...</p>
+      ) : (
+        <>
+          <UserTable>
+            <UserTableHead>
+              <tr>
+                <UserTableCell>Nombre</UserTableCell>
+                <UserTableCell>Email</UserTableCell>
+                <UserTableCell>Rol</UserTableCell>
+                <UserTableCell>Acciones</UserTableCell>
+              </tr>
+            </UserTableHead>
+            <UserTableBody>
+              {currentUsers.map(({ _id, name, email, role }) => (
+                <UserTableRow key={_id}>
+                  <UserTableCell>{truncateText(name, 40)}</UserTableCell>
+                  <UserTableCell>{truncateText(email, 40)}</UserTableCell>
+                  <UserTableCell>{truncateText(role, 40)}</UserTableCell>
+                  <UserTableCell>
+                    <UserActionButton className="edit" onClick={() => handleEdit(_id)}>
+                      <FontAwesomeIcon icon={faUserPen} />
+                    </UserActionButton>
+                    <UserActionButton className="delete" onClick={() => handleDeleteClick(_id)}>
+                      <FontAwesomeIcon icon={faUserXmark} />
+                    </UserActionButton>
+                  </UserTableCell>
+                </UserTableRow>
+              ))}
+            </UserTableBody>
+          </UserTable>
 
-      <PaginationContainer>
-        {Array.from({ length: totalPages }, (_, i) => (
-          <PaginationButton
-            key={i + 1}
-            onClick={() => handlePagination(i + 1)}
-            active={currentPage === i + 1}
-          >
-            {i + 1}
-          </PaginationButton>
-        ))}
-      </PaginationContainer>
+          <PaginationContainer>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <PaginationButton
+                key={i + 1}
+                onClick={() => handlePagination(i + 1)}
+                active={currentPage === i + 1}
+              >
+                {i + 1}
+              </PaginationButton>
+            ))}
+          </PaginationContainer>
+        </>
+      )}
 
       <DeleteConfirmationModal
         isOpen={modalOpen}
