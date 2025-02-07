@@ -13,7 +13,6 @@ import {
   SectionTitle, 
   ButtonContainer, 
   BackButton, 
-  Select, 
   EditTrainingButton 
 } from '../../frontend/styles/editTraining.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -26,28 +25,24 @@ const EditTraining = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: '',
     roles: [],
     section: '',
     module: '',
     submodule: '',
+    documentUrl: '',
+    videoUrl: '',
+    documentName: '',
+    videoName: '',
   });
   const [initialData, setInitialData] = useState(null);
-  const [fileUrl, setFileUrl] = useState('');
-  const [originalFileName, setOriginalFileName] = useState('');
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewDocument, setPreviewDocument] = useState('');
+  const [previewVideo, setPreviewVideo] = useState('');
   const [loading, setLoading] = useState(true);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
 
   const allRoles = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
-  const allTypes = ['document', 'video'];
-
-  const supportedTypes = {
-    document: ['pdf', 'docx', 'pptx'],
-    video: ['mp4'],
-  };
 
   useEffect(() => {
     const fetchTraining = async () => {
@@ -57,16 +52,33 @@ const EditTraining = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const { title, description, type, roles, fileUrl, section, module, submodule, originalFileName } = response.data;
-        setFormData({ title, description, type, roles, section, module, submodule });
-        setInitialData({ title, description, type, roles, section, module, submodule, fileUrl, originalFileName });
+        const { title, description, roles, section, module, submodule, document, video } = response.data;
+        setFormData({
+          title,
+          description,
+          roles,
+          section,
+          module,
+          submodule,
+          documentUrl: document?.fileUrl || '',
+          videoUrl: video?.fileUrl || '',
+          documentName: document?.originalFileName || '',
+          videoName: video?.originalFileName || ''
+        });
 
-        if (fileUrl) {
-          setFileUrl(fileUrl);
-          setOriginalFileName(originalFileName);
-          setPreviewUrl(fileUrl);
-        }
+        setInitialData({
+          title,
+          description,
+          roles,
+          section,
+          module,
+          submodule,
+          document,
+          video
+        });
 
+        setPreviewDocument(document?.fileUrl || '');
+        setPreviewVideo(video?.fileUrl || '');
         setLoading(false);
       } catch (err) {
         setLoading(false);
@@ -91,41 +103,78 @@ const EditTraining = () => {
     });
   };
 
-  const handleWidgetOpen = () => {
+  const handleSelectAllRoles = () => {
+    if (formData.roles.length === allRoles.length) {
+      setFormData((prev) => ({ ...prev, roles: [] }));
+    } else {
+      setFormData((prev) => ({ ...prev, roles: allRoles }));
+    }
+  };
+
+  const handleDocumentUpload = () => {
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: 'darkdanny25',
         uploadPreset: 'jewl7kdx',
-        sources: ['local', 'url', 'camera', 'dropbox', 'facebook', 'instagram'],
+        sources: ['local', 'url'],
         resourceType: 'auto',
+        folder: 'documents',
       },
       (error, result) => {
-        if (error) {
-          setNotificationMessage('Error al cargar el archivo');
-          setNotificationType('error');
-          setShowNotification(true);
-          return;
-        }
+        if (error) return handleNotification('Error al cargar el documento.', 'error');
 
         if (result.event === 'success') {
           const uploadedFile = result.info;
-          const fileExtension = uploadedFile.format.toLowerCase();
+          const fileUrl = uploadedFile.secure_url;
+          const extension = fileUrl.split('.').pop().toLowerCase();
 
-          if (formData.type && !supportedTypes[formData.type]?.includes(fileExtension)) {
-            setFileUrl('');
-            setPreviewUrl('');
-            setNotificationMessage('El tipo de archivo no coincide con el tipo seleccionado');
-            setNotificationType('error');
-            setShowNotification(true);
-            return;
+          if (!['pdf', 'docx', 'pptx'].includes(extension)) {
+            return handleNotification('Solo se permiten documentos (PDF, DOCX, PPTX).', 'error');
           }
 
-          setFileUrl(uploadedFile.secure_url);
-          setOriginalFileName(uploadedFile.original_filename);
-          setPreviewUrl(uploadedFile.secure_url);
-          setNotificationMessage('Archivo cargado con éxito');
-          setNotificationType('success');
-          setShowNotification(true);
+          setFormData((prev) => ({
+            ...prev,
+            documentUrl: fileUrl,
+            documentName: uploadedFile.original_filename,
+          }));
+
+          setPreviewDocument(fileUrl);
+          handleNotification('Documento cargado con éxito.');
+        }
+      }
+    );
+    widget.open();
+  };
+
+  const handleVideoUpload = () => {
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: 'darkdanny25',
+        uploadPreset: 'jewl7kdx',
+        sources: ['local', 'url'],
+        resourceType: 'video',
+        folder: 'videos',
+      },
+      (error, result) => {
+        if (error) return handleNotification('Error al cargar el video.', 'error');
+
+        if (result.event === 'success') {
+          const uploadedFile = result.info;
+          const fileUrl = uploadedFile.secure_url;
+          const extension = fileUrl.split('.').pop().toLowerCase();
+
+          if (extension !== 'mp4') {
+            return handleNotification('Solo se permiten videos en formato MP4.', 'error');
+          }
+
+          setFormData((prev) => ({
+            ...prev,
+            videoUrl: fileUrl,
+            videoName: uploadedFile.original_filename,
+          }));
+
+          setPreviewVideo(fileUrl);
+          handleNotification('Video cargado con éxito.');
         }
       }
     );
@@ -164,8 +213,8 @@ const EditTraining = () => {
       handleNotification('Debes seleccionar al menos un rol.', 'error');
       return false;
     }
-    if (formData.type && !fileUrl) {
-      handleNotification('Debes cargar un archivo para el tipo seleccionado.', 'error');
+    if (!(formData.documentUrl || formData.videoUrl)) {
+      handleNotification('Debes cargar al menos un archivo (documento o video).', 'error');
       return false;
     }
     return true;
@@ -174,31 +223,21 @@ const EditTraining = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) return handleNotification('No hay token de autenticación', 'error');
 
-    if (!validateInputs()) {
-      return;
-    }
+    if (!validateInputs()) return;
 
     const updatedData = {
       ...formData,
-      fileUrl: fileUrl || initialData.fileUrl,
-      originalFileName: originalFileName || initialData.originalFileName,
+      documentUrl: formData.documentUrl || initialData?.document?.fileUrl,
+      videoUrl: formData.videoUrl || initialData?.video?.fileUrl,
+      documentName: formData.documentName || initialData?.document?.originalFileName,
+      videoName: formData.videoName || initialData?.video?.originalFileName,
     };
 
-    const hasChanges = Object.keys(updatedData).some((key) => {
-      return JSON.stringify(updatedData[key]) !== JSON.stringify(initialData[key]);
-    });
-
-    if (formData.type !== initialData.type && fileUrl) {
-      const fileExtension = fileUrl.split('.').pop().toLowerCase();
-      if (!supportedTypes[formData.type]?.includes(fileExtension)) {
-        setNotificationMessage('El nuevo archivo no coincide con el tipo seleccionado');
-        setNotificationType('error');
-        setShowNotification(true);
-        return;
-      }
-    }
+    const hasChanges = Object.keys(updatedData).some((key) =>
+      JSON.stringify(updatedData[key]) !== JSON.stringify(initialData[key])
+    );
 
     if (!hasChanges) {
       handleNotification('No se realizaron cambios', 'error');
@@ -217,10 +256,6 @@ const EditTraining = () => {
     }
   };
 
-  const getDisplayValue = (value) => value || '';
-
-  if (loading) return <p>Cargando datos...</p>;
-
   return (
     <Container>
       {showNotification && (
@@ -231,29 +266,29 @@ const EditTraining = () => {
         <Title>Editar Capacitación</Title>
         <Input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Título" required />
         <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Descripción" required />
-        
-        <Select name="type" value={formData.type} onChange={handleChange} required>
-          <option value="">Seleccione un tipo</option>
-          {allTypes.map((type) => (
-            <option key={type} value={type}>
-              {type === 'document' ? 'Documento' : 'Video'}
-            </option>
-          ))}
-        </Select>
-        
-        <Input type="text" name="section" value={getDisplayValue(formData.section)} onChange={handleChange} placeholder="Sección" required />
-        <Input type="text" name="module" value={getDisplayValue(formData.module)} onChange={handleChange} placeholder="Módulo" />
-        <Input type="text" name="submodule" value={getDisplayValue(formData.submodule)} onChange={handleChange} placeholder="Submódulo (opcional)" />
-        
+        <Input type="text" name="section" value={formData.section} onChange={handleChange} placeholder="Sección" required />
+        <Input type="text" name="module" value={formData.module} onChange={handleChange} placeholder="Módulo" />
+        <Input type="text" name="submodule" value={formData.submodule} onChange={handleChange} placeholder="Submódulo (opcional)" />
+
         <FileInput>
-          <label onClick={handleWidgetOpen}>
-            <FontAwesomeIcon icon={faUpload} /> Seleccionar Archivo
+          <label onClick={handleDocumentUpload}>
+            <FontAwesomeIcon icon={faUpload} /> Seleccionar Documento
           </label>
-          {previewUrl && <embed src={previewUrl} type="application/pdf" width="800" height="400" />}
         </FileInput>
-        
+        <FileInput>
+          <label onClick={handleVideoUpload}>
+            <FontAwesomeIcon icon={faUpload} /> Seleccionar Video
+          </label>
+        </FileInput>
+
+        {previewDocument && <embed src={previewDocument} type="application/pdf" width="100%" height="300px" />}
+        {previewVideo && <video src={previewVideo} controls width="100%" />}
+
         <SectionTitle>Asignar Roles</SectionTitle>
         <CheckboxContainer>
+          <label>
+            <input type="checkbox" checked={formData.roles.length === allRoles.length} onChange={handleSelectAllRoles} /> Seleccionar todos
+          </label>
           {allRoles.map((role) => (
             <label key={role}>
               <input type="checkbox" checked={formData.roles.includes(role)} onChange={() => toggleRole(role)} />
@@ -261,7 +296,7 @@ const EditTraining = () => {
             </label>
           ))}
         </CheckboxContainer>
-        
+
         <ButtonContainer>
           <EditTrainingButton type="submit">
             <FontAwesomeIcon icon={faSave} /> Actualizar Capacitación

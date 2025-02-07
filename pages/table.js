@@ -48,7 +48,11 @@ const TrainingTable = () => {
       const { data } = await axios.get('http://localhost:5000/api/training', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
-      const trainingsArray = Object.values(data).flatMap(modules => Object.values(modules).flatMap(training => training));
+
+      const trainingsArray = Object.values(data).flatMap(modules =>
+        Object.values(modules).flatMap(training => training)
+      );
+
       setTrainings(trainingsArray);
       setFilteredTrainings(trainingsArray);
       setLoading(false);
@@ -177,15 +181,30 @@ const TrainingTable = () => {
                 <TableRow key={training._id} className={index % 2 === 0 ? 'striped' : ''}>
                   <TableCell>{truncateText(training.title, 20)}</TableCell>
                   <TableCell>{truncateText(training.description, 30)}</TableCell>
-                  <TableCell className="center">{truncateText(training.type, 30)}</TableCell>
+                  <TableCell className="center">
+                    {training.document && training.video ? 'Documento y Video' : training.document ? 'Documento' : 'Video'}
+                  </TableCell>
                   <TableCell className="center">{truncateText(training.roles.join(', '), 20)}</TableCell>
                   <TableCell className="center">{truncateText(training.section, 30, 'Sección no disponible')}</TableCell>
                   <TableCell className="center">{truncateText(training.module, 30, 'Módulo no disponible')}</TableCell>
                   <TableCell className="center">{truncateText(training.submodule, 30, 'Submódulo no disponible')}</TableCell>
                   <TableCell className="center">
-                    <FileLink href={training.fileUrl} target="_blank" rel="noopener noreferrer">
-                      {truncateText(training.originalFileName, 30)}
-                    </FileLink>
+                    <ul>
+                      {training.document && (
+                        <li>
+                          <FileLink href={training.document.fileUrl} target="_blank" rel="noopener noreferrer">
+                            {truncateText(training.document.originalFileName, 30)}.{training.document.fileUrl.split('.').pop()}
+                          </FileLink>
+                        </li>
+                      )}
+                      {training.video && (
+                        <li>
+                          <FileLink href={training.video.fileUrl} target="_blank" rel="noopener noreferrer">
+                            {truncateText(training.video.originalFileName, 30)}.{training.video.fileUrl.split('.').pop()}
+                          </FileLink>
+                        </li>
+                      )}
+                    </ul>
                   </TableCell>
                   <TableCell>
                     <ActionButton className="edit" onClick={() => router.push(`/editTraining/${training._id}`)}>

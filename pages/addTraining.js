@@ -14,7 +14,6 @@ import {
   ButtonContainer,
   AddButton,
   BackButton,
-  Select,
 } from '../frontend/styles/addTraining.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faFileCirclePlus, faUpload } from '@fortawesome/free-solid-svg-icons';
@@ -25,62 +24,91 @@ const AddTraining = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: '',
     roles: [],
     section: '',
     module: '',
     submodule: '',
+    documentUrl: '',
+    videoUrl: '',
+    documentName: '',
+    videoName: ''
   });
 
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState('');
+  const [previewDocument, setPreviewDocument] = useState('');
+  const [previewVideo, setPreviewVideo] = useState('');
   const [notification, setNotification] = useState({ message: '', type: '' });
 
   const allRoles = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
-  const allTypes = ['document', 'video'];
-
-  const supportedTypes = {
-    document: ['pdf', 'docx', 'pptx'],
-    video: ['mp4'],
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (e.target.name === 'type' && file && !supportedTypes[value]?.includes(file.format)) {
-      setFile(null);
-      setPreviewUrl('');
-    }
   };
 
-  const handleWidgetOpen = () => {
+  const handleDocumentUpload = () => {
     const widget = window.cloudinary.createUploadWidget(
       {
         cloudName: 'darkdanny25',
         uploadPreset: 'jewl7kdx',
-        sources: ['local', 'url', 'camera', 'dropbox', 'facebook', 'instagram'],
+        sources: ['local', 'url'],
         resourceType: 'auto',
-        folder: 'public_files',
+        folder: 'documents',
       },
       (error, result) => {
-        if (error) {
-          return showNotification('Error al cargar el archivo', 'error');
-        }
+        if (error) return showNotification('Error al cargar el documento.', 'error');
 
         if (result.event === 'success') {
           const uploadedFile = result.info;
-          const fileType = uploadedFile.format;
+          const fileUrl = uploadedFile.secure_url;
+          const extension = fileUrl.split('.').pop().toLowerCase();
 
-          if (!supportedTypes[formData.type]?.includes(fileType)) {
-            setFile(null);
-            setPreviewUrl('');
-            return showNotification('El tipo de archivo no coincide con el tipo seleccionado', 'error');
+          if (!['pdf', 'docx', 'pptx'].includes(extension)) {
+            return showNotification('Solo se permiten documentos (PDF, DOCX, PPTX).', 'error');
           }
 
-          setFile(uploadedFile);
-          setPreviewUrl(uploadedFile.secure_url);
-          showNotification('Archivo cargado con éxito');
+          setFormData((prev) => ({
+            ...prev,
+            documentUrl: fileUrl,
+            documentName: uploadedFile.original_filename,
+          }));
+
+          setPreviewDocument(fileUrl);
+          showNotification('Documento cargado con éxito.');
+        }
+      }
+    );
+    widget.open();
+  };
+
+  const handleVideoUpload = () => {
+    const widget = window.cloudinary.createUploadWidget(
+      {
+        cloudName: 'darkdanny25',
+        uploadPreset: 'jewl7kdx',
+        sources: ['local', 'url'],
+        resourceType: 'video',
+        folder: 'videos',
+      },
+      (error, result) => {
+        if (error) return showNotification('Error al cargar el video.', 'error');
+
+        if (result.event === 'success') {
+          const uploadedFile = result.info;
+          const fileUrl = uploadedFile.secure_url;
+          const extension = fileUrl.split('.').pop().toLowerCase();
+
+          if (extension !== 'mp4') {
+            return showNotification('Solo se permiten videos en formato MP4.', 'error');
+          }
+
+          setFormData((prev) => ({
+            ...prev,
+            videoUrl: fileUrl,
+            videoName: uploadedFile.original_filename,
+          }));
+
+          setPreviewVideo(fileUrl);
+          showNotification('Video cargado con éxito.');
         }
       }
     );
@@ -117,8 +145,8 @@ const AddTraining = () => {
       showNotification('Debes seleccionar al menos un rol.', 'error');
       return false;
     }
-    if (formData.type && !file) {
-      showNotification('Debes cargar un archivo para el tipo seleccionado.', 'error');
+    if (!(formData.documentUrl || formData.videoUrl)) {
+      showNotification('Debes cargar al menos un archivo (documento o video).', 'error');
       return false;
     }
     return true;
@@ -128,26 +156,10 @@ const AddTraining = () => {
     e.preventDefault();
 
     const token = localStorage.getItem('token');
-    if (!token || !file) return showNotification('Por favor, selecciona un archivo', 'error');
+    if (!token) return showNotification('No hay token de autenticación', 'error');
+    if (!validateInputs()) return;
 
-    const { secure_url, original_filename } = file;
-    if (!secure_url || !original_filename) return showNotification('Error al cargar el archivo. Intenta nuevamente.', 'error');
-
-    const data = {
-      title: formData.title,
-      description: formData.description,
-      type: formData.type,
-      roles: formData.roles,
-      section: formData.section,
-      module: formData.module,
-      submodule: formData.submodule,
-      fileUrl: secure_url,
-      originalFileName: original_filename,
-    };
-
-    if (!validateInputs()) {
-      return;
-    }
+    const data = { ...formData };
 
     try {
       await axios.post('http://localhost:5000/api/training', data, {
@@ -163,113 +175,42 @@ const AddTraining = () => {
 
   return (
     <Container>
-      {notification.message && (
-        <Notification message={notification.message} type={notification.type} onClose={() => setNotification({ message: '', type: '' })} />
-      )}
+      {notification.message && <Notification message={notification.message} type={notification.type} onClose={() => setNotification({ message: '', type: '' })} />}
 
       <Form onSubmit={handleSubmit}>
         <Title>Agregar Capacitación</Title>
 
-        <Input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          placeholder="Título"
-          required
-          maxLength="100"
-        />
-        <Textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          placeholder="Descripción"
-          required
-          maxLength="500"
-        />
+        <Input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Título" required maxLength="100" />
+        <Textarea name="description" value={formData.description} onChange={handleChange} placeholder="Descripción" required maxLength="500" />
+        <Input type="text" name="section" value={formData.section} onChange={handleChange} placeholder="Sección" required maxLength="50" />
+        <Input type="text" name="module" value={formData.module} onChange={handleChange} placeholder="Módulo" maxLength="50" />
+        <Input type="text" name="submodule" value={formData.submodule} onChange={handleChange} placeholder="Submódulo (opcional)" maxLength="50" />
 
-        <Select name="type" value={formData.type} onChange={handleChange} required>
-          <option value="">Seleccione un tipo</option>
-          {allTypes.map((type) => (
-            <option key={type} value={type}>
-              {type === 'document' ? 'Documento' : 'Video'}
-            </option>
-          ))}
-        </Select>
+        <FileInput><label onClick={handleDocumentUpload}><FontAwesomeIcon icon={faUpload} /> Seleccionar Documento</label></FileInput>
+        <FileInput><label onClick={handleVideoUpload}><FontAwesomeIcon icon={faUpload} /> Seleccionar Video</label></FileInput>
 
-        <Input
-          type="text"
-          name="section"
-          value={formData.section}
-          onChange={handleChange}
-          placeholder="Sección"
-          required
-          maxLength="50"
-        />
-        <Input
-          type="text"
-          name="module"
-          value={formData.module}
-          onChange={handleChange}
-          placeholder="Módulo"
-          maxLength="50"
-        />
-        <Input
-          type="text"
-          name="submodule"
-          value={formData.submodule}
-          onChange={handleChange}
-          placeholder="Submódulo (opcional)"
-          maxLength="50"
-        />
-
-        <FileInput>
-          <label onClick={handleWidgetOpen}>
-            <FontAwesomeIcon icon={faUpload} /> Seleccionar Archivo
-          </label>
-        </FileInput>
-
-        {previewUrl && (
-          <PreviewContainer>
-            {formData.type === 'document' ? <embed src={previewUrl} type="application/pdf" /> : <video src={previewUrl} controls />}
-          </PreviewContainer>
-        )}
+        {previewDocument && <PreviewContainer><embed src={previewDocument} type="application/pdf" width="100%" height="300px" /></PreviewContainer>}
+        {previewVideo && <PreviewContainer><video src={previewVideo} controls width="100%" /></PreviewContainer>}
 
         <SectionTitle>Asignar Roles</SectionTitle>
         <CheckboxContainer>
           <label>
-            <input
-              type="checkbox"
-              checked={formData.roles.length === allRoles.length}
-              onChange={() => setFormData((prev) => ({
-                ...prev,
-                roles: prev.roles.length === allRoles.length ? [] : allRoles,
-              }))}
-            /> Seleccionar todos
+            <input type="checkbox" checked={formData.roles.length === allRoles.length} onChange={() => setFormData((prev) => ({
+              ...prev,
+              roles: prev.roles.length === allRoles.length ? [] : allRoles,
+            }))} /> Seleccionar todos
           </label>
           {allRoles.map((role) => (
-            <label key={role}>
-              <input
-                type="checkbox"
-                checked={formData.roles.includes(role)}
-                onChange={() => setFormData((prev) => ({
-                  ...prev,
-                  roles: prev.roles.includes(role)
-                    ? prev.roles.filter((r) => r !== role)
-                    : [...prev.roles, role],
-                }))}
-              /> {role}
-            </label>
+            <label key={role}><input type="checkbox" checked={formData.roles.includes(role)} onChange={() => setFormData((prev) => ({
+              ...prev,
+              roles: prev.roles.includes(role) ? prev.roles.filter((r) => r !== role) : [...prev.roles, role],
+            }))} /> {role}</label>
           ))}
         </CheckboxContainer>
 
         <ButtonContainer>
-          <AddButton type="submit">
-            <FontAwesomeIcon icon={faFileCirclePlus} /> Agregar Capacitación
-          </AddButton>
-          <BackButton type="button" onClick={() => router.push('/table')}>
-            <FontAwesomeIcon icon={faArrowLeft} /> Regresar
-          </BackButton>
+          <AddButton type="submit"><FontAwesomeIcon icon={faFileCirclePlus} /> Agregar Capacitación</AddButton>
+          <BackButton type="button" onClick={() => router.push('/table')}><FontAwesomeIcon icon={faArrowLeft} /> Regresar</BackButton>
         </ButtonContainer>
       </Form>
     </Container>

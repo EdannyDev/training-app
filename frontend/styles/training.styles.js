@@ -281,7 +281,7 @@ export const MaterialRoles = styled.p`
   }
 `;
 
-export const MaterialLink = styled.a`
+export const ButtonLink = styled.a`
   display: inline-block;
   font-size: 14px;
   color: #0070f3;

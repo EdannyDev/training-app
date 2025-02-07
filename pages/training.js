@@ -8,7 +8,6 @@ import {
   MaterialTitle,
   MaterialDescription,
   Title,
-  MaterialLink,
   MaterialRoles,
   SubmoduleTitle,
   SectionDivider,
@@ -16,7 +15,8 @@ import {
   ErrorBadge,
   InputSearch,
   IconWrapper,
-  NoSubmoduleText
+  NoSubmoduleText,
+  ButtonLink
 } from '../frontend/styles/training.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -99,12 +99,30 @@ const CapacitationPage = () => {
   };
 
   const renderMaterialLink = (material) => {
-    const fileUrl = material.fileUrl.startsWith('http') ? material.fileUrl : `http://localhost:5000${material.fileUrl}`;
+    const documentUrl = material.document?.fileUrl;
+    const videoUrl = material.video?.fileUrl;
+  
+    const renderFileExtension = (fileUrl) => {
+      const fileExtension = fileUrl.split('.').pop(); // Obtener la extensión del archivo
+      return `.${fileExtension}`;
+    };
   
     return (
-      <MaterialLink href={fileUrl} target="_blank" rel="noopener noreferrer">
-        {material.type === 'video' ? 'Ver Video' : 'Ver Documento'}
-      </MaterialLink>
+      <div>
+        {documentUrl && (
+          <ButtonLink href={documentUrl} target="_blank" rel="noopener noreferrer">
+            {material.document?.originalFileName}{renderFileExtension(documentUrl)}
+          </ButtonLink>
+        )}
+        {documentUrl && videoUrl && (
+          <span style={{ margin: '0 6px 0 -1px', fontSize: '18px' }}>|</span>
+        )}
+        {videoUrl && (
+          <ButtonLink href={videoUrl} target="_blank" rel="noopener noreferrer">
+            {material.video?.originalFileName}{renderFileExtension(videoUrl)}
+          </ButtonLink>
+        )}
+      </div>
     );
   };  
 
