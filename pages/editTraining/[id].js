@@ -77,8 +77,10 @@ const EditTraining = () => {
           section,
           module,
           submodule,
-          document,
-          video
+          documentUrl: document?.fileUrl || '',
+          videoUrl: video?.fileUrl || '',
+          documentName: document?.originalFileName || '',
+          videoName: video?.originalFileName || ''
         });
 
         setPreviewDocument(document?.fileUrl || '');
@@ -236,7 +238,19 @@ const EditTraining = () => {
       return false;
     }
     return true;
-  };  
+  };
+
+  const hasChanges = () => {
+    const cleanFormData = { ...formData };
+    delete cleanFormData.deleteDocument;
+    delete cleanFormData.deleteVideo;
+
+    const cleanInitialData = { ...initialData };
+    delete cleanInitialData.deleteDocument;
+    delete cleanInitialData.deleteVideo;
+
+    return JSON.stringify(cleanFormData) !== JSON.stringify(cleanInitialData);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -244,6 +258,11 @@ const EditTraining = () => {
     if (!token) return handleNotification('No hay token de autenticación', 'error');
 
     if (!validateInputs()) return;
+
+    if (!hasChanges()) {
+      handleNotification('No has realizado ningún cambio.', 'error');
+      return;
+    }
 
     const updatedData = {
       ...formData,
