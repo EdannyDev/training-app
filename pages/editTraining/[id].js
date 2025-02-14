@@ -13,10 +13,12 @@ import {
   SectionTitle, 
   ButtonContainer, 
   BackButton, 
-  EditTrainingButton 
+  EditTrainingButton, 
+  DeleteButton,
+  FilePreviewContainer
 } from '../../frontend/styles/editTraining.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faUpload, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faUpload, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const EditTraining = () => {
   const router = useRouter();
@@ -37,6 +39,8 @@ const EditTraining = () => {
   const [initialData, setInitialData] = useState(null);
   const [previewDocument, setPreviewDocument] = useState('');
   const [previewVideo, setPreviewVideo] = useState('');
+  const [deleteDocument, setDeleteDocument] = useState(false);
+  const [deleteVideo, setDeleteVideo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
@@ -139,6 +143,7 @@ const EditTraining = () => {
           }));
 
           setPreviewDocument(fileUrl);
+          setDeleteDocument(false);
           handleNotification('Documento cargado con éxito.');
         }
       }
@@ -174,11 +179,24 @@ const EditTraining = () => {
           }));
 
           setPreviewVideo(fileUrl);
+          setDeleteVideo(false);
           handleNotification('Video cargado con éxito.');
         }
       }
     );
     widget.open();
+  };
+
+  const handleDeleteDocument = () => {
+    setFormData((prev) => ({ ...prev, documentUrl: '', documentName: '' }));
+    setPreviewDocument('');
+    setDeleteDocument(true);
+  };
+
+  const handleDeleteVideo = () => {
+    setFormData((prev) => ({ ...prev, videoUrl: '', videoName: '' }));
+    setPreviewVideo('');
+    setDeleteVideo(true);
   };
 
   const handleNotification = (message, type = 'success') => {
@@ -212,13 +230,13 @@ const EditTraining = () => {
     if (!formData.roles.length) {
       handleNotification('Debes seleccionar al menos un rol.', 'error');
       return false;
-    }
-    if (!(formData.documentUrl || formData.videoUrl)) {
-      handleNotification('Debes cargar al menos un archivo (documento o video).', 'error');
+    }  
+    if (!formData.documentUrl && !formData.videoUrl) {
+      handleNotification('Debes subir al menos un archivo (documento o video).', 'error');
       return false;
     }
     return true;
-  };
+  };  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -229,20 +247,9 @@ const EditTraining = () => {
 
     const updatedData = {
       ...formData,
-      documentUrl: formData.documentUrl || initialData?.document?.fileUrl,
-      videoUrl: formData.videoUrl || initialData?.video?.fileUrl,
-      documentName: formData.documentName || initialData?.document?.originalFileName,
-      videoName: formData.videoName || initialData?.video?.originalFileName,
+      deleteDocument,
+      deleteVideo
     };
-
-    const hasChanges = Object.keys(updatedData).some((key) =>
-      JSON.stringify(updatedData[key]) !== JSON.stringify(initialData[key])
-    );
-
-    if (!hasChanges) {
-      handleNotification('No se realizaron cambios', 'error');
-      return;
-    }
 
     try {
       await axios.put(`http://localhost:5000/api/training/${id}`, updatedData, {
@@ -275,14 +282,32 @@ const EditTraining = () => {
             <FontAwesomeIcon icon={faUpload} /> Seleccionar Documento
           </label>
         </FileInput>
+        {previewDocument && (
+          <>
+            <FilePreviewContainer>
+              <embed src={previewDocument} type="application/pdf" width="100%" height="300px" />
+            </FilePreviewContainer>
+              <DeleteButton type="button" onClick={handleDeleteDocument}>
+                <FontAwesomeIcon icon={faTrash} /> Eliminar Documento
+              </DeleteButton>
+          </>
+        )}    
+
         <FileInput>
           <label onClick={handleVideoUpload}>
             <FontAwesomeIcon icon={faUpload} /> Seleccionar Video
           </label>
         </FileInput>
-
-        {previewDocument && <embed src={previewDocument} type="application/pdf" width="100%" height="300px" />}
-        {previewVideo && <video src={previewVideo} controls width="100%" />}
+        {previewVideo && (
+          <>
+            <FilePreviewContainer>
+              <video src={previewVideo} controls width="100%" />
+            </FilePreviewContainer>
+              <DeleteButton type="button" onClick={handleDeleteVideo}>
+                <FontAwesomeIcon icon={faTrash} /> Eliminar Video
+              </DeleteButton>
+          </>
+        )}
 
         <SectionTitle>Asignar Roles</SectionTitle>
         <CheckboxContainer>
