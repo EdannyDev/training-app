@@ -103,7 +103,7 @@ const CapacitationPage = () => {
     const videoUrl = material.video?.fileUrl;
   
     const renderFileExtension = (fileUrl) => {
-      const fileExtension = fileUrl.split('.').pop(); // Obtener la extensión del archivo
+      const fileExtension = fileUrl.split('.').pop();
       return `.${fileExtension}`;
     };
   
