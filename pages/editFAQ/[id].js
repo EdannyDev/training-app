@@ -22,9 +22,7 @@ const EditFAQ = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [roles, setRoles] = useState([]);
-  const [showNotification, setShowNotification] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState('');
-  const [notificationType, setNotificationType] = useState('');
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const router = useRouter();
   const { id } = router.query;
 
@@ -32,48 +30,28 @@ const EditFAQ = () => {
     if (id) {
       const fetchFAQ = async () => {
         try {
-          const token = localStorage.getItem('token');
-          const response = await axios.get(`http://localhost:5000/api/faqs/${id}`, {
-            headers: { Authorization: `Bearer ${token}` },
+          const { data } = await axios.get(`http://localhost:5000/api/faqs/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           });
-          setFaq(response.data);
-          setQuestion(response.data.question);
-          setAnswer(response.data.answer);
-          setRoles(response.data.roles);
-        } catch {
-          setNotificationMessage('Hubo un error al cargar el FAQ. Intenta nuevamente más tarde.');
-          setNotificationType('error');
-          setShowNotification(true);
+          setFaq(data);
+          setQuestion(data.question);
+          setAnswer(data.answer);
+          setRoles(data.roles);
+        } catch (error) {
+          setNotification({ show: true, message: 'Error al cargar el FAQ. Intenta nuevamente.', type: 'error' });
         }
       };
       fetchFAQ();
     }
   }, [id]);
 
-  const handleRoleChange = (e) => {
-    const value = e.target.value;
-    setRoles((prevRoles) =>
-      prevRoles.includes(value)
-        ? prevRoles.filter((role) => role !== value)
-        : [...prevRoles, value]
-    );
+  const handleRoleChange = ({ target: { value } }) => {
+    setRoles((prev) => prev.includes(value) ? prev.filter((role) => role !== value) : [...prev, value]);
   };
 
-  const validateQuestion = (value) => {
-    if (value.trim().length < 5 || value.trim().length > 100) {
-      setNotificationMessage('La pregunta debe tener entre 5 y 100 caracteres.');
-      setNotificationType('error');
-      setShowNotification(true);
-      return false;
-    }
-    return true;
-  };
-
-  const validateAnswer = (value) => {
-    if (value.trim().length < 10 || value.trim().length > 500) {
-      setNotificationMessage('La respuesta debe tener entre 10 y 500 caracteres.');
-      setNotificationType('error');
-      setShowNotification(true);
+  const validateField = (value, minLength, maxLength, fieldName) => {
+    if (value.trim().length < minLength || value.trim().length > maxLength) {
+      setNotification({ show: true, message: `${fieldName} debe tener entre ${minLength} y ${maxLength} caracteres.`, type: 'error' });
       return false;
     }
     return true;
@@ -81,9 +59,7 @@ const EditFAQ = () => {
 
   const validateRoles = () => {
     if (roles.length === 0) {
-      setNotificationMessage('Debes seleccionar al menos un rol para este FAQ.');
-      setNotificationType('error');
-      setShowNotification(true);
+      setNotification({ show: true, message: 'Selecciona al menos un rol para este FAQ.', type: 'error' });
       return false;
     }
     return true;
@@ -92,57 +68,42 @@ const EditFAQ = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isQuestionValid = validateQuestion(question);
-    const isAnswerValid = validateAnswer(answer);
+    const isQuestionValid = validateField(question, 5, 100, 'La pregunta');
+    const isAnswerValid = validateField(answer, 10, 500, 'La respuesta');
     const areRolesValid = validateRoles();
 
-    if (!isQuestionValid || !isAnswerValid || !areRolesValid) {
-      return;
-    }
+    if (!(isQuestionValid && isAnswerValid && areRolesValid)) return;
 
     const updatedData = { question, answer, roles };
-    const hasChanges =
-      question !== faq.question ||
-      answer !== faq.answer ||
-      JSON.stringify(roles) !== JSON.stringify(faq.roles);
+    const hasChanges = question !== faq.question || answer !== faq.answer || JSON.stringify(roles) !== JSON.stringify(faq.roles);
 
     if (!hasChanges) {
-      setNotificationMessage('No se han detectado cambios para actualizar el FAQ.');
-      setNotificationType('error');
-      setShowNotification(true);
+      setNotification({ show: true, message: 'No se han detectado cambios para actualizar el FAQ.', type: 'error' });
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(
-        `http://localhost:5000/api/faqs/${id}`,
-        updatedData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNotificationMessage('Los cambios se han guardado correctamente. Verifica en la lista de FAQs.');
-      setNotificationType('success');
-      setShowNotification(true);
+      await axios.put(`http://localhost:5000/api/faqs/${id}`, updatedData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setNotification({ show: true, message: 'Cambios guardados correctamente. Verifica en la lista de FAQs.', type: 'success' });
       setTimeout(() => {
-        setShowNotification(false);
+        setNotification({ show: false });
         router.push('/faqs');
       }, 3000);
-    } catch {
-      setNotificationMessage('Hubo un problema al actualizar el FAQ. Asegúrate de que los datos sean correctos e intenta nuevamente.');
-      setNotificationType('error');
-      setShowNotification(true);
+    } catch (error) {
+      setNotification({ show: true, message: 'Error al actualizar el FAQ. Verifica los datos e intenta nuevamente.', type: 'error' });
     }
+  };
+
+  const handleBackButtonClick = (e) => {
+    e.preventDefault();
+    router.push('/faqs');
   };
 
   return (
     <EditFAQContainer>
-      {showNotification && (
-        <Notification
-          message={notificationMessage}
-          type={notificationType}
-          onClose={() => setShowNotification(false)}
-        />
-      )}
+      {notification.show && <Notification message={notification.message} type={notification.type} onClose={() => setNotification({ show: false })} />}
       <EditFAQCard>
         <EditFAQTitle>Editar FAQ</EditFAQTitle>
         {faq ? (
@@ -173,7 +134,7 @@ const EditFAQ = () => {
                       checked={roles.includes(role)}
                       onChange={handleRoleChange}
                     />
-                    {role.charAt(0).toUpperCase() + role.slice(1).replace('_', ' ')}
+                    {role.replace('_', ' ').replace(/^./, (char) => char.toUpperCase())}
                   </RoleLabel>
                 ))}
               </div>
@@ -182,7 +143,7 @@ const EditFAQ = () => {
               <EditFAQButton type="submit">
                 <FontAwesomeIcon icon={faSave} /> Actualizar FAQ
               </EditFAQButton>
-              <BackButton onClick={() => router.push('/faqs')}>
+              <BackButton onClick={handleBackButtonClick}>
                 <FontAwesomeIcon icon={faArrowLeft} /> Regresar
               </BackButton>
             </ButtonGroup>
