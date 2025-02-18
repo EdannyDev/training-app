@@ -62,15 +62,19 @@ const FAQTable = () => {
   }, []);
 
   const handleSearchChange = (e) => {
-    let query = e.target.value.trim();
+    let query = e.target.value;
+    query = query.replace(/\s+/g, ' ');
+
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
     setSearchTerm(query);
+    
     if (query === '') {
       setNotification(null);
       return;
     }
+    
     if (query.length < minLength || query.length > maxLength) {
       setNotification({
         type: 'error',

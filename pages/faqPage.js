@@ -6,7 +6,7 @@ import {
   FAQList, 
   FAQItem, 
   Question, 
-  Answer, 
+  Answer,
   Divider, 
   ErrorBadge, 
   InputSearch,
@@ -52,12 +52,12 @@ const FAQs = () => {
   }, []);
 
   const handleSearch = (e) => {
-    let query = e.target.value.trim();
-
+    let query = e.target.value;
+    query = query.replace(/\s+/g, ' ');
+    
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
-
     setSearchQuery(query);
 
     if (query === '') {
@@ -78,7 +78,6 @@ const FAQs = () => {
       question.toLowerCase().includes(query) ||
       answer.toLowerCase().includes(query)
     );
-
     setFilteredFaqs(filtered);
   };
 

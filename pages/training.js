@@ -59,45 +59,51 @@ const CapacitationPage = () => {
   }, []);
 
   const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
+    let query = e.target.value;
+    query = query.replace(/\s+/g, ' ');
+    
+    if (query.length > maxLength) {
+      query = query.slice(0, maxLength);
+    }
     setSearchQuery(query);
-
-    if (query.length < minLength || query.length > maxLength) {
-      setError(`La búsqueda debe tener entre ${minLength} y ${maxLength} caracteres.`);
+  
+    if (query === '') {
+      setError('');
+      setFilteredMaterials(materials);
+      return;
+    }
+  
+    if (query.length < minLength) {
+      setError(`La búsqueda debe tener al menos ${minLength} caracteres.`);
       setFilteredMaterials({});
       return;
     } else {
       setError('');
     }
-
+  
     const filtered = Object.keys(materials).reduce((acc, section) => {
       const filteredModules = Object.keys(materials[section]).reduce((modAcc, module) => {
-        const filteredMaterialsForModule = materials[section][module].filter((material) => {
-          return (
-            material.title.toLowerCase().includes(query) ||
-            material.description.toLowerCase().includes(query) ||
-            (material.roles && material.roles.join(' ').toLowerCase().includes(query)) ||
-            (material.submodule && material.submodule.toLowerCase().includes(query))
-          );
-        });
-
+        const filteredMaterialsForModule = materials[section][module].filter((material) =>
+          [material.title, material.description, material.roles?.join(', '), material.submodule]
+            .some(val => val?.toLowerCase().includes(query.toLowerCase()))
+        );
+  
         if (filteredMaterialsForModule.length > 0) {
           modAcc[module] = filteredMaterialsForModule;
         }
-
+  
         return modAcc;
       }, {});
-
+  
       if (Object.keys(filteredModules).length > 0) {
         acc[section] = filteredModules;
       }
-
+  
       return acc;
     }, {});
-
     setFilteredMaterials(filtered);
   };
-
+  
   const renderMaterialLink = (material) => {
     const documentUrl = material.document?.fileUrl;
     const videoUrl = material.video?.fileUrl;

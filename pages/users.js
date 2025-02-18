@@ -53,15 +53,19 @@ const UserManagement = () => {
   }, []);
 
   const handleSearch = (e) => {
-    let query = e.target.value.trim();
+    let query = e.target.value;
+    query = query.replace(/\s+/g, ' ');
+    
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
     setSearchTerm(query);
+
     if (query === '') {
       setNotification({ show: false, message: '', type: '' });
       return;
     }
+
     if (query.length < minLength || query.length > maxLength) {
       setNotification({
         show: true,

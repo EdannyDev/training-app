@@ -60,16 +60,20 @@ const TrainingTable = () => {
   };
 
   const handleSearchChange = (e) => {
-    let query = e.target.value.trim();
+    let query = e.target.value;  
+    query = query.replace(/\s+/g, ' ');
+    
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
     setSearchTerm(query);
+  
     if (query === '') {
       setFilteredTrainings(trainings);
       setNotification(null);
       return;
     }
+  
     if (query.length < minLength || query.length > maxLength) {
       setNotification({
         type: 'error',
@@ -80,13 +84,14 @@ const TrainingTable = () => {
     } else {
       setNotification(null);
     }
+  
     const filtered = trainings.filter((training) =>
       [training.title, training.description, training.type, training.roles.join(', '), 
        training.originalFileName, training.fileUrl, training.section, training.module, training.submodule]
-       .some(val => val?.toLowerCase().includes(searchTerm.toLowerCase()))
+       .some(val => val?.toLowerCase().includes(query.toLowerCase()))
     );
     setFilteredTrainings(filtered);
-  };
+  };  
 
   const handlePagination = (pageNumber) => {
     const totalPages = Math.ceil(filteredTrainings.length / 5);
