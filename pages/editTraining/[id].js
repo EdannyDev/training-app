@@ -20,8 +20,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faUpload, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
 
-const allRoles = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
-
 const EditTraining = () => {
   const router = useRouter();
   const { id } = router.query;
@@ -38,20 +36,7 @@ const EditTraining = () => {
     documentName: '',
     videoName: '',
   });
-
-  const [initialData, setInitialData] = useState({
-    title: '',
-    description: '',
-    roles: [],
-    section: '',
-    module: '',
-    submodule: '',
-    documentUrl: '',
-    videoUrl: '',
-    documentName: '',
-    videoName: '',
-  });
-
+  const [initialData, setInitialData] = useState(null);
   const [previewDocument, setPreviewDocument] = useState('');
   const [previewVideo, setPreviewVideo] = useState('');
   const [deleteDocument, setDeleteDocument] = useState(false);
@@ -59,6 +44,8 @@ const EditTraining = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
+
+  const allRoles = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
 
   useEffect(() => {
     const fetchTraining = async () => {
@@ -70,6 +57,19 @@ const EditTraining = () => {
 
         const { title, description, roles, section, module, submodule, document, video } = response.data;
         setFormData({
+          title,
+          description,
+          roles,
+          section,
+          module,
+          submodule,
+          documentUrl: document?.fileUrl || '',
+          videoUrl: video?.fileUrl || '',
+          documentName: document?.originalFileName || '',
+          videoName: video?.originalFileName || ''
+        });
+
+        setInitialData({
           title,
           description,
           roles,
@@ -94,11 +94,11 @@ const EditTraining = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const toggleRole = (role) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const newRoles = prev.roles.includes(role)
         ? prev.roles.filter((r) => r !== role)
         : [...prev.roles, role];
@@ -107,10 +107,11 @@ const EditTraining = () => {
   };
 
   const handleSelectAllRoles = () => {
-    setFormData(prev => ({
-      ...prev,
-      roles: prev.roles.length === allRoles.length ? [] : allRoles
-    }));
+    if (formData.roles.length === allRoles.length) {
+      setFormData((prev) => ({ ...prev, roles: [] }));
+    } else {
+      setFormData((prev) => ({ ...prev, roles: allRoles }));
+    }
   };
 
   const handleDocumentUpload = () => {
@@ -134,7 +135,7 @@ const EditTraining = () => {
             return handleNotification('Solo se permiten documentos (PDF, DOCX, PPTX).', 'error');
           }
 
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             documentUrl: fileUrl,
             documentName: uploadedFile.original_filename,
@@ -170,7 +171,7 @@ const EditTraining = () => {
             return handleNotification('Solo se permiten videos en formato MP4.', 'error');
           }
 
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             videoUrl: fileUrl,
             videoName: uploadedFile.original_filename,
@@ -186,13 +187,13 @@ const EditTraining = () => {
   };
 
   const handleDeleteDocument = () => {
-    setFormData(prev => ({ ...prev, documentUrl: '', documentName: '' }));
+    setFormData((prev) => ({ ...prev, documentUrl: '', documentName: '' }));
     setPreviewDocument('');
     setDeleteDocument(true);
   };
 
   const handleDeleteVideo = () => {
-    setFormData(prev => ({ ...prev, videoUrl: '', videoName: '' }));
+    setFormData((prev) => ({ ...prev, videoUrl: '', videoName: '' }));
     setPreviewVideo('');
     setDeleteVideo(true);
   };
@@ -228,7 +229,7 @@ const EditTraining = () => {
     if (!formData.roles.length) {
       handleNotification('Debes seleccionar al menos un rol.', 'error');
       return false;
-    }
+    }  
     if (!formData.documentUrl && !formData.videoUrl) {
       handleNotification('Debes subir al menos un archivo (documento o video).', 'error');
       return false;
@@ -302,9 +303,9 @@ const EditTraining = () => {
             <FilePreviewContainer>
               <embed src={previewDocument} type="application/pdf" width="100%" height="300px" />
             </FilePreviewContainer>
-            <DeleteButton type="button" onClick={handleDeleteDocument}>
-              <FontAwesomeIcon icon={faTrash} /> Eliminar Documento
-            </DeleteButton>
+              <DeleteButton type="button" onClick={handleDeleteDocument}>
+                <FontAwesomeIcon icon={faTrash} /> Eliminar Documento
+              </DeleteButton>
           </>
         )}
 
@@ -318,9 +319,9 @@ const EditTraining = () => {
             <FilePreviewContainer>
               <video src={previewVideo} controls width="100%" />
             </FilePreviewContainer>
-            <DeleteButton type="button" onClick={handleDeleteVideo}>
-              <FontAwesomeIcon icon={faTrash} /> Eliminar Video
-            </DeleteButton>
+              <DeleteButton type="button" onClick={handleDeleteVideo}>
+                <FontAwesomeIcon icon={faTrash} /> Eliminar Video
+              </DeleteButton>
           </>
         )}
 
