@@ -36,6 +36,7 @@ const EditTraining = () => {
     documentName: '',
     videoName: '',
   });
+  
   const [initialData, setInitialData] = useState(null);
   const [previewDocument, setPreviewDocument] = useState('');
   const [previewVideo, setPreviewVideo] = useState('');
