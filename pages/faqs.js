@@ -27,7 +27,6 @@ import Notification from '../frontend/components/notification';
 const FAQTable = () => {
   const [faqs, setFaqs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [faqsPerPage] = useState(5);
   const [modalOpen, setModalOpen] = useState(false);
@@ -53,11 +52,9 @@ const FAQTable = () => {
           headers: { Authorization: `Bearer ${token}`},
         });
         setFaqs(response.data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching FAQs:', error);
         setNotification({ message: 'Error al obtener las FAQs', type: 'error' });
-        setLoading(false);
       }
     };
 
@@ -95,6 +92,7 @@ const FAQTable = () => {
   const indexOfFirstFAQ = indexOfLastFAQ - faqsPerPage;
   const currentFaqs = filteredFaqs.slice(indexOfFirstFAQ, indexOfLastFAQ);
   const totalPages = Math.ceil(filteredFaqs.length / faqsPerPage);
+
   const handlePagination = (pageNumber) => {
     if (pageNumber > totalPages) {
       setCurrentPage(totalPages);
@@ -161,51 +159,45 @@ const FAQTable = () => {
         </AddButton>
       </SearchContainer>
 
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <>
-          <Table>
-            <TableHead>
-              <tr>
-                <TableCell>Pregunta</TableCell>
-                <TableCell>Respuesta</TableCell>
-                <TableCell>Roles</TableCell>
-                <TableCell>Acciones</TableCell>
-              </tr>
-            </TableHead>
-            <TableBody>
-              {currentFaqs.map((faq) => (
-                <TableRow key={faq._id}>
-                  <TableCell>{truncateText(faq.question, 40)}</TableCell>
-                  <TableCell>{truncateText(faq.answer, 40)}</TableCell>
-                  <TableCell>{truncateText(faq.roles.join(', '), 40)}</TableCell>
-                  <TableCell>
-                    <ActionButton className="edit" onClick={() => router.push(`/editFAQ/${faq._id}`)}>
-                      <FontAwesomeIcon icon={faEdit} />
-                    </ActionButton>
-                    <ActionButton className="delete" onClick={() => handleDeleteClick(faq)}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </ActionButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      <Table>
+        <TableHead>
+          <tr>
+            <TableCell>Pregunta</TableCell>
+            <TableCell>Respuesta</TableCell>
+            <TableCell>Roles</TableCell>
+            <TableCell>Acciones</TableCell>
+          </tr>
+        </TableHead>
+        <TableBody>
+          {currentFaqs.map((faq) => (
+            <TableRow key={faq._id}>
+              <TableCell>{truncateText(faq.question, 40)}</TableCell>
+              <TableCell>{truncateText(faq.answer, 40)}</TableCell>
+              <TableCell>{truncateText(faq.roles.join(', '), 40)}</TableCell>
+              <TableCell>
+                <ActionButton className="edit" onClick={() => router.push(`/editFAQ/${faq._id}`)}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </ActionButton>
+                <ActionButton className="delete" onClick={() => handleDeleteClick(faq)}>
+                  <FontAwesomeIcon icon={faTrash} />
+                </ActionButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
-          <PaginationContainer>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationButton
-                key={index}
-                onClick={() => handlePagination(index + 1)}
-                active={currentPage === index + 1}
-              >
-                {index + 1}
-              </PaginationButton>
-            ))}
-          </PaginationContainer>
-        </>
-      )}
+      <PaginationContainer>
+        {[...Array(totalPages)].map((_, index) => (
+          <PaginationButton
+            key={index}
+            onClick={() => handlePagination(index + 1)}
+            active={currentPage === index + 1}
+          >
+            {index + 1}
+          </PaginationButton>
+        ))}
+      </PaginationContainer>
 
       {notification && (
         <Notification

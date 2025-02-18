@@ -9,11 +9,10 @@ import DeleteConfirmationModal from '../frontend/components/modalDelete';
 
 const Profile = () => {
   const [user, setUser] = useState({ name: '', email: '', newPassword: '', role: '' });
-  const [originalData, setOriginalData] = useState({});
+  const [originalData, setOriginalData] = useState({ name: '', email: '', role: '' });
   const [notification, setNotification] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -94,7 +93,10 @@ const Profile = () => {
 
       if (user.newPassword) {
         showNotification('Contraseña actualizada. Cerrando sesión...', 'success');
-        setTimeout(() => { localStorage.removeItem('token'); router.push('/login'); }, 2000);
+        setTimeout(() => { 
+          localStorage.removeItem('token'); 
+          router.push('/login'); 
+        }, 2000);
       } else {
         showNotification('Perfil actualizado. Verifica los cambios.', 'success');
         setOriginalData(user);
@@ -107,7 +109,6 @@ const Profile = () => {
   const handleDeleteAccount = async () => {
     setIsModalOpen(false);
     showNotification('Cuenta eliminada exitosamente.', 'success');
-    setIsDeleting(true);
 
     setTimeout(async () => {
       try {
@@ -120,7 +121,6 @@ const Profile = () => {
       } catch {
         showNotification('Error al eliminar la cuenta', 'error');
       }
-      setIsDeleting(false);
     }, 3000);
   };
 

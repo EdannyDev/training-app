@@ -106,51 +106,47 @@ const EditFAQ = () => {
       {notification.show && <Notification message={notification.message} type={notification.type} onClose={() => setNotification({ show: false })} />}
       <EditFAQCard>
         <EditFAQTitle>Editar FAQ</EditFAQTitle>
-        {faq ? (
-          <form onSubmit={handleSubmit}>
-            <EditFAQInput
-              type="text"
-              placeholder="Pregunta"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              maxLength="100"
-              required
-            />
-            <EditFAQTextArea
-              placeholder="Respuesta"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              maxLength="500"
-              required
-            />
-            <RoleContainer>
-              <label>Roles:</label>
-              <div>
-                {['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'].map((role) => (
-                  <RoleLabel key={role}>
-                    <input
-                      type="checkbox"
-                      value={role}
-                      checked={roles.includes(role)}
-                      onChange={handleRoleChange}
-                    />
-                    {role.replace('_', ' ').replace(/^./, (char) => char.toUpperCase())}
-                  </RoleLabel>
-                ))}
-              </div>
-            </RoleContainer>
-            <ButtonGroup>
-              <EditFAQButton type="submit">
-                <FontAwesomeIcon icon={faSave} /> Actualizar FAQ
-              </EditFAQButton>
-              <BackButton onClick={handleBackButtonClick}>
-                <FontAwesomeIcon icon={faArrowLeft} /> Regresar
-              </BackButton>
-            </ButtonGroup>
-          </form>
-        ) : (
-          <p>Cargando...</p>
-        )}
+        <form onSubmit={handleSubmit}>
+          <EditFAQInput
+            type="text"
+            placeholder="Pregunta"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            maxLength="100"
+            required
+          />
+          <EditFAQTextArea
+            placeholder="Respuesta"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            maxLength="500"
+            required
+          />
+          <RoleContainer>
+            <label>Roles:</label>
+            <div>
+              {['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'].map((role) => (
+                <RoleLabel key={role}>
+                  <input
+                    type="checkbox"
+                    value={role}
+                    checked={roles.includes(role)}
+                    onChange={handleRoleChange}
+                  />
+                  {role.replace('_', ' ').replace(/^./, (char) => char.toUpperCase())}
+                </RoleLabel>
+              ))}
+            </div>
+          </RoleContainer>
+          <ButtonGroup>
+            <EditFAQButton type="submit">
+              <FontAwesomeIcon icon={faSave} /> Actualizar FAQ
+            </EditFAQButton>
+            <BackButton onClick={handleBackButtonClick}>
+              <FontAwesomeIcon icon={faArrowLeft} /> Regresar
+            </BackButton>
+          </ButtonGroup>
+        </form>
       </EditFAQCard>
     </EditFAQContainer>
   );

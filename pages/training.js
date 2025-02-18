@@ -27,7 +27,7 @@ const CapacitationPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [noMaterialsError, setNoMaterialsError] = useState(false);
   const [error, setError] = useState('');
-  
+
   const minLength = 3;
   const maxLength = 50;
 
@@ -101,12 +101,12 @@ const CapacitationPage = () => {
   const renderMaterialLink = (material) => {
     const documentUrl = material.document?.fileUrl;
     const videoUrl = material.video?.fileUrl;
-  
+
     const renderFileExtension = (fileUrl) => {
       const fileExtension = fileUrl.split('.').pop();
       return `.${fileExtension}`;
     };
-  
+
     return (
       <div>
         {documentUrl && (
@@ -124,12 +124,12 @@ const CapacitationPage = () => {
         )}
       </div>
     );
-  };  
+  };
 
   return (
     <ContentContainer>
       <Title>Material de Capacitación</Title>
-      
+
       <InputSearch>
         <input
           type="text"
@@ -142,15 +142,15 @@ const CapacitationPage = () => {
           <FontAwesomeIcon icon={faSearch} />
         </IconWrapper>
       </InputSearch>
-      
+
       <SectionDivider />
-      
+
       {error && (
         <ErrorBadge>
           <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> {error}
         </ErrorBadge>
       )}
-      
+
       {noMaterialsError ? (
         <ErrorBadge>
           <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> No hay materiales de capacitación disponibles.

@@ -15,7 +15,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave } from '@fortawesome/free-solid-svg-icons';
 
 const EditUser = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    role: ''
+  });
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
@@ -135,44 +139,40 @@ const EditUser = () => {
       )}
       <EditUserCard>
         <EditUserTitle>Editar Usuario</EditUserTitle>
-        {user ? (
-          <form onSubmit={handleSubmit}>
-            <EditUserInput
-              type="text"
-              placeholder="Nombre"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength="30"
-              required
-            />
-            <EditUserInput
-              type="email"
-              placeholder="Correo Electrónico"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              maxLength="50"
-              required
-            />
-            <EditUserInput
-              type="text"
-              placeholder="Rol"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              maxLength="25"
-              required
-            />
-            <ButtonGroup>
-              <EditUserButton type="submit">
-                <FontAwesomeIcon icon={faSave} /> Actualizar Usuario
-              </EditUserButton>
-              <BackButton onClick={() => router.push('/users')}>
-                <FontAwesomeIcon icon={faArrowLeft} /> Regresar
-              </BackButton>
-            </ButtonGroup>
-          </form>
-        ) : (
-          <p>Cargando...</p>
-        )}
+        <form onSubmit={handleSubmit}>
+          <EditUserInput
+            type="text"
+            placeholder="Nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength="30"
+            required
+          />
+          <EditUserInput
+            type="email"
+            placeholder="Correo Electrónico"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            maxLength="50"
+            required
+          />
+          <EditUserInput
+            type="text"
+            placeholder="Rol"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            maxLength="25"
+            required
+          />
+          <ButtonGroup>
+            <EditUserButton type="submit">
+              <FontAwesomeIcon icon={faSave} /> Actualizar Usuario
+            </EditUserButton>
+            <BackButton onClick={() => router.push('/users')}>
+              <FontAwesomeIcon icon={faArrowLeft} /> Regresar
+            </BackButton>
+          </ButtonGroup>
+        </form>
       </EditUserCard>
     </EditUserContainer>
   );

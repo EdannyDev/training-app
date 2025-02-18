@@ -39,12 +39,23 @@ const EditTraining = () => {
     videoName: '',
   });
 
-  const [initialData, setInitialData] = useState(null);
+  const [initialData, setInitialData] = useState({
+    title: '',
+    description: '',
+    roles: [],
+    section: '',
+    module: '',
+    submodule: '',
+    documentUrl: '',
+    videoUrl: '',
+    documentName: '',
+    videoName: '',
+  });
+
   const [previewDocument, setPreviewDocument] = useState('');
   const [previewVideo, setPreviewVideo] = useState('');
   const [deleteDocument, setDeleteDocument] = useState(false);
   const [deleteVideo, setDeleteVideo] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
@@ -71,24 +82,9 @@ const EditTraining = () => {
           videoName: video?.originalFileName || ''
         });
 
-        setInitialData({
-          title,
-          description,
-          roles,
-          section,
-          module,
-          submodule,
-          documentUrl: document?.fileUrl || '',
-          videoUrl: video?.fileUrl || '',
-          documentName: document?.originalFileName || '',
-          videoName: video?.originalFileName || ''
-        });
-
         setPreviewDocument(document?.fileUrl || '');
         setPreviewVideo(video?.fileUrl || '');
-        setLoading(false);
       } catch (err) {
-        setLoading(false);
         handleNotification('Error al cargar los datos del material', 'error');
       }
     };

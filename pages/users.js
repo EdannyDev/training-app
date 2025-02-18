@@ -29,7 +29,6 @@ const UserManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const usersPerPage = 5;
@@ -47,8 +46,6 @@ const UserManagement = () => {
         setUsers(response.data);
       } catch (error) {
         setNotification({ show: true, message: 'Error al cargar usuarios', type: 'error' });
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -146,51 +143,45 @@ const UserManagement = () => {
         />
       )}
 
-      {loading ? (
-        <p>Cargando...</p>
-      ) : (
-        <>
-          <UserTable>
-            <UserTableHead>
-              <tr>
-                <UserTableCell>Nombre</UserTableCell>
-                <UserTableCell>Email</UserTableCell>
-                <UserTableCell>Rol</UserTableCell>
-                <UserTableCell>Acciones</UserTableCell>
-              </tr>
-            </UserTableHead>
-            <UserTableBody>
-              {currentUsers.map(({ _id, name, email, role }) => (
-                <UserTableRow key={_id}>
-                  <UserTableCell>{truncateText(name, 40)}</UserTableCell>
-                  <UserTableCell>{truncateText(email, 40)}</UserTableCell>
-                  <UserTableCell>{truncateText(role, 40)}</UserTableCell>
-                  <UserTableCell>
-                    <UserActionButton className="edit" onClick={() => handleEdit(_id)}>
-                      <FontAwesomeIcon icon={faUserPen} />
-                    </UserActionButton>
-                    <UserActionButton className="delete" onClick={() => handleDeleteClick(_id)}>
-                      <FontAwesomeIcon icon={faUserXmark} />
-                    </UserActionButton>
-                  </UserTableCell>
-                </UserTableRow>
-              ))}
-            </UserTableBody>
-          </UserTable>
+      <UserTable>
+        <UserTableHead>
+          <tr>
+            <UserTableCell>Nombre</UserTableCell>
+            <UserTableCell>Email</UserTableCell>
+            <UserTableCell>Rol</UserTableCell>
+            <UserTableCell>Acciones</UserTableCell>
+          </tr>
+        </UserTableHead>
+        <UserTableBody>
+          {currentUsers.map(({ _id, name, email, role }) => (
+            <UserTableRow key={_id}>
+              <UserTableCell>{truncateText(name, 40)}</UserTableCell>
+              <UserTableCell>{truncateText(email, 40)}</UserTableCell>
+              <UserTableCell>{truncateText(role, 40)}</UserTableCell>
+              <UserTableCell>
+                <UserActionButton className="edit" onClick={() => handleEdit(_id)}>
+                  <FontAwesomeIcon icon={faUserPen} />
+                </UserActionButton>
+                <UserActionButton className="delete" onClick={() => handleDeleteClick(_id)}>
+                  <FontAwesomeIcon icon={faUserXmark} />
+                </UserActionButton>
+              </UserTableCell>
+            </UserTableRow>
+          ))}
+        </UserTableBody>
+      </UserTable>
 
-          <PaginationContainer>
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PaginationButton
-                key={i + 1}
-                onClick={() => handlePagination(i + 1)}
-                active={currentPage === i + 1}
-              >
-                {i + 1}
-              </PaginationButton>
-            ))}
-          </PaginationContainer>
-        </>
-      )}
+      <PaginationContainer>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <PaginationButton
+            key={i + 1}
+            onClick={() => handlePagination(i + 1)}
+            active={currentPage === i + 1}
+          >
+            {i + 1}
+          </PaginationButton>
+        ))}
+      </PaginationContainer>
 
       <DeleteConfirmationModal
         isOpen={modalOpen}
