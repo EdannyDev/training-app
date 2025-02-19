@@ -186,6 +186,7 @@ export const TableRow = styled.tr`
 export const TableCell = styled.td`
   padding: 12px 15px;
   border-bottom: 1px solid #ddd;
+  word-wrap: break-word;
   font-size: 14px;
 
   &:last-child {
