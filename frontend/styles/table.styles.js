@@ -136,11 +136,11 @@ export const AddButton = styled.button`
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: left;
   border-radius: 8px;
   overflow: hidden;
-  table-layout: auto;
+  table-layout: fixed;
 
   @media (max-width: 1024px) {
     font-size: 14px;
