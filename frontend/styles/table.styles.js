@@ -274,6 +274,7 @@ export const PaginationButton = styled.button`
 
   &:hover {
     transform: scale(1.1);
+    background-color: #ccc;
   }
 
   &:disabled {
