@@ -227,10 +227,16 @@ export const PaginationButton = styled.button`
   margin: 0 4px;
   font-size: 14px;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
     transform: scale(1.1);
+    ${props => 
+      !props.active &&
+      ` 
+      background-color: #ccc;
+      color: #000;
+    `}
     background-color: #ccc;
     color: #000;
   }
