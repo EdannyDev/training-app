@@ -163,7 +163,7 @@ export const Notification = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 15px;
+  padding: 15px 20px;
   border-radius: 8px;
   width: 90%;
   max-width: 300px;

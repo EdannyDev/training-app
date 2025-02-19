@@ -144,7 +144,7 @@ const ForgotPassword = () => {
 
       {notification && (
         <Notification type={notification.type}>
-          <FontAwesomeIcon icon={notification.type === 'error' ? faExclamationCircle : faCheckCircle} />
+          <FontAwesomeIcon icon={notification.type === 'error' ? faExclamationCircle : faCheckCircle} />&nbsp;
           {notification.message}
         </Notification>
       )}

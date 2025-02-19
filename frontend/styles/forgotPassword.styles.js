@@ -155,11 +155,10 @@ export const Notification = styled.div`
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 10px 15px;
-  color: ${(props) => (props.type === 'error' ? '#ff0000' : '#00a800')};
-  background: ${(props) => (props.type === 'error' ? '#ffdddd' : '#ddffee')};
-  border: 1px solid ${(props) => (props.type === 'error' ? '#ff0000' : '#00a800')};
-  border-radius: 5px;
+  padding: 15px 20px;
+  background-color: ${({ type }) => (type === 'success' ? '#28a745' : '#dc3545')};
+  color: #fff;
+  border-radius: 8px;
   text-align: center;
   animation: fadeOut 3s forwards;
   z-index: 1000;
