@@ -75,7 +75,7 @@ const EditUser = () => {
   const validateRole = (value) => {
     const validRoles = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona', 'admin'];
     if (!validRoles.includes(value)) {
-      setNotificationMessage('El rol debe ser uno de los siguientes: asesor, asesorJR, gerente_sucursal, gerente_zona.');
+      setNotificationMessage('El rol debe ser uno de los siguientes: asesor, asesorJR, gerente_sucursal, gerente_zona o admin.');
       setNotificationType('error');
       setShowNotification(true);
       return false;
