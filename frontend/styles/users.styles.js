@@ -237,8 +237,6 @@ export const PaginationButton = styled.button`
       background-color: #ccc;
       color: #000;
     `}
-    background-color: #ccc;
-    color: #000;
   }
 
   &:disabled {
