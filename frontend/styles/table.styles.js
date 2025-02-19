@@ -136,11 +136,11 @@ export const AddButton = styled.button`
 export const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
   text-align: left;
   border-radius: 8px;
   overflow: hidden;
-  table-layout: fixed;
+  table-layout: auto;
 
   @media (max-width: 1024px) {
     font-size: 14px;
@@ -186,7 +186,6 @@ export const TableRow = styled.tr`
 export const TableCell = styled.td`
   padding: 12px 15px;
   border-bottom: 1px solid #ddd;
-  word-wrap: break-word;
   font-size: 14px;
 
   &:last-child {

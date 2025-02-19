@@ -161,9 +161,6 @@ export const Table = styled.table`
 
   @media (max-width: 768px) {
     font-size: 12px;
-    width: 100%;
-    display: block;
-    overflow-x: auto;
   }
 
   @media (max-width: 480px) {
