@@ -40,7 +40,7 @@ const UserManagement = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/users/list', {
+        const response = await axios.get('https://backend-training-y050.onrender.com/api/users/list', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
         });
         setUsers(response.data);
@@ -98,7 +98,7 @@ const UserManagement = () => {
 
   const handleDelete = () => {
     axios
-      .delete(`http://localhost:5000/api/users/delete/${userToDelete}`, {
+      .delete(`https://backend-training-y050.onrender.com/api/users/delete/${userToDelete}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
       })
       .then(() => {

@@ -52,7 +52,7 @@ const EditTraining = () => {
     const fetchTraining = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/training/${id}`, {
+        const response = await axios.get(`https://backend-training-y050.onrender.com/api/training/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -269,7 +269,7 @@ const EditTraining = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/training/${id}`, updatedData, {
+      await axios.put(`https://backend-training-y050.onrender.com/api/training/${id}`, updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
