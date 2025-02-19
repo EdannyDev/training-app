@@ -61,7 +61,7 @@ const CapacitationPage = () => {
   const handleSearch = (e) => {
     let query = e.target.value;
     query = query.replace(/\s+/g, ' ');
-    
+  
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
@@ -84,8 +84,14 @@ const CapacitationPage = () => {
     const filtered = Object.keys(materials).reduce((acc, section) => {
       const filteredModules = Object.keys(materials[section]).reduce((modAcc, module) => {
         const filteredMaterialsForModule = materials[section][module].filter((material) =>
-          [material.title, material.description, material.roles?.join(', '), material.submodule]
-            .some(val => val?.toLowerCase().includes(query.toLowerCase()))
+          [
+            material.title,
+            material.description,
+            material.roles?.join(', '),
+            material.submodule,
+            material.section,
+            material.module,
+          ].some(val => val?.toLowerCase().includes(query.toLowerCase()))
         );
   
         if (filteredMaterialsForModule.length > 0) {
@@ -102,7 +108,7 @@ const CapacitationPage = () => {
       return acc;
     }, {});
     setFilteredMaterials(filtered);
-  };
+  };  
   
   const renderMaterialLink = (material) => {
     const documentUrl = material.document?.fileUrl;
