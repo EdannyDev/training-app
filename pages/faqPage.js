@@ -33,7 +33,7 @@ const FAQs = () => {
       }
 
       try {
-        const { data } = await axios.get('https://backend-training-y050.onrender.com/api/faqs', {
+        const { data } = await axios.get('http://localhost:5000/api/faqs', {
           headers: { Authorization: `Bearer ${token}` },
         });
 

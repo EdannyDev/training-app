@@ -30,7 +30,7 @@ const EditFAQ = () => {
     if (id) {
       const fetchFAQ = async () => {
         try {
-          const { data } = await axios.get(`https://backend-training-y050.onrender.com/api/faqs/${id}`, {
+          const { data } = await axios.get(`http://localhost:5000/api/faqs/${id}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           });
           setFaq(data);
@@ -83,7 +83,7 @@ const EditFAQ = () => {
     }
 
     try {
-      await axios.put(`https://backend-training-y050.onrender.com/api/faqs/${id}`, updatedData, {
+      await axios.put(`http://localhost:5000/api/faqs/${id}`, updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setNotification({ show: true, message: 'Cambios guardados correctamente. Verifica en la lista de FAQs.', type: 'success' });

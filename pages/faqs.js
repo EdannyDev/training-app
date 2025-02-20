@@ -48,7 +48,7 @@ const FAQTable = () => {
           return;
         }
 
-        const response = await axios.get('https://backend-training-y050.onrender.com/api/faqs', {
+        const response = await axios.get('http://localhost:5000/api/faqs', {
           headers: { Authorization: `Bearer ${token}`},
         });
         setFaqs(response.data);
@@ -118,7 +118,7 @@ const FAQTable = () => {
         setModalOpen(false);
         return;
       }
-      await axios.delete(`https://backend-training-y050.onrender.com/api/faqs/${selectedFAQ._id}`, {
+      await axios.delete(`http://localhost:5000/api/faqs/${selectedFAQ._id}`, {
         headers: { Authorization: `Bearer ${token}`}, 
       });
       const updatedFaqs = faqs.filter(f => f._id !== selectedFAQ._id);

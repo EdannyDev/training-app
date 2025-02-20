@@ -19,7 +19,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get('https://backend-training-y050.onrender.com/api/users/profile', {
+        const { data } = await axios.get('http://localhost:5000/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser({ ...data, newPassword: '' });
@@ -85,7 +85,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put('https://backend-training-y050.onrender.com/api/users/profile', {
+      await axios.put('http://localhost:5000/api/users/profile', {
         name: user.name, email: user.email, password: user.newPassword,
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -113,7 +113,7 @@ const Profile = () => {
     setTimeout(async () => {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete('https://backend-training-y050.onrender.com/api/users/profile', {
+        await axios.delete('http://localhost:5000/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         localStorage.removeItem('token');
