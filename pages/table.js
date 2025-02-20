@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import Spinner from '@/frontend/components/spinner';
 import {
   Container,
   Table,
@@ -33,6 +34,7 @@ const TrainingTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTraining, setSelectedTraining] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const minLength = 3;
@@ -43,6 +45,7 @@ const TrainingTable = () => {
   }, []);
 
   const fetchTrainings = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get('http://localhost:5000/api/training', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -56,6 +59,8 @@ const TrainingTable = () => {
       setFilteredTrainings(trainingsArray);
     } catch (error) {
       setNotification({ type: 'error', message: 'Error al cargar las capacitaciones' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -166,70 +171,74 @@ const TrainingTable = () => {
         />
       )}
 
-      <>
-        <Table>
-          <TableHead>
-            <tr>
-              {['Título', 'Descripción', 'Tipo', 'Roles', 'Sección', 'Módulo', 'Submódulo', 'Archivo', 'Acciones'].map((header) => (
-                <TableCell key={header} className={header === 'Acciones' ? '' : 'center'}>{header}</TableCell>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <>
+          <Table>
+            <TableHead>
+              <tr>
+                {['Título', 'Descripción', 'Tipo', 'Roles', 'Sección', 'Módulo', 'Submódulo', 'Archivo', 'Acciones'].map((header) => (
+                  <TableCell key={header} className={header === 'Acciones' ? '' : 'center'}>{header}</TableCell>
+                ))}
+              </tr>
+            </TableHead>
+            <TableBody>
+              {currentTrainings.map((training, index) => (
+                <TableRow key={training._id} className={index % 2 === 0 ? 'striped' : ''}>
+                  <TableCell>{truncateText(training.title, 20)}</TableCell>
+                  <TableCell>{truncateText(training.description, 30)}</TableCell>
+                  <TableCell className="center">
+                    {training.document && training.video ? 'Documento y Video' : training.document ? 'Documento' : 'Video'}
+                  </TableCell>
+                  <TableCell className="center">{truncateText(training.roles.join(', '), 20)}</TableCell>
+                  <TableCell className="center">{truncateText(training.section, 30, 'Sección no disponible')}</TableCell>
+                  <TableCell className="center">{truncateText(training.module, 30, 'Módulo no disponible')}</TableCell>
+                  <TableCell className="center">{truncateText(training.submodule, 30, 'Submódulo no disponible')}</TableCell>
+                  <TableCell className="center">
+                    <ul>
+                      {training.document && (
+                        <li>
+                          <FileLink href={training.document.fileUrl} target="_blank" rel="noopener noreferrer">
+                            {truncateText(training.document.originalFileName, 30)}.{training.document.fileUrl.split('.').pop()}
+                          </FileLink>
+                        </li>
+                      )}
+                      {training.video && (
+                        <li>
+                          <FileLink href={training.video.fileUrl} target="_blank" rel="noopener noreferrer">
+                            {truncateText(training.video.originalFileName, 30)}.{training.video.fileUrl.split('.').pop()}
+                          </FileLink>
+                        </li>
+                      )}
+                    </ul>
+                  </TableCell>
+                  <TableCell>
+                    <ActionButton className="edit" onClick={() => router.push(`/editTraining/${training._id}`)}>
+                      <FontAwesomeIcon icon={faEdit} />
+                    </ActionButton>
+                    <ActionButton className="delete" onClick={() => handleDeleteClick(training)}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </ActionButton>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tr>
-          </TableHead>
-          <TableBody>
-            {currentTrainings.map((training, index) => (
-              <TableRow key={training._id} className={index % 2 === 0 ? 'striped' : ''}>
-                <TableCell>{truncateText(training.title, 20)}</TableCell>
-                <TableCell>{truncateText(training.description, 30)}</TableCell>
-                <TableCell className="center">
-                  {training.document && training.video ? 'Documento y Video' : training.document ? 'Documento' : 'Video'}
-                </TableCell>
-                <TableCell className="center">{truncateText(training.roles.join(', '), 20)}</TableCell>
-                <TableCell className="center">{truncateText(training.section, 30, 'Sección no disponible')}</TableCell>
-                <TableCell className="center">{truncateText(training.module, 30, 'Módulo no disponible')}</TableCell>
-                <TableCell className="center">{truncateText(training.submodule, 30, 'Submódulo no disponible')}</TableCell>
-                <TableCell className="center">
-                  <ul>
-                    {training.document && (
-                      <li>
-                        <FileLink href={training.document.fileUrl} target="_blank" rel="noopener noreferrer">
-                          {truncateText(training.document.originalFileName, 30)}.{training.document.fileUrl.split('.').pop()}
-                        </FileLink>
-                      </li>
-                    )}
-                    {training.video && (
-                      <li>
-                        <FileLink href={training.video.fileUrl} target="_blank" rel="noopener noreferrer">
-                          {truncateText(training.video.originalFileName, 30)}.{training.video.fileUrl.split('.').pop()}
-                        </FileLink>
-                      </li>
-                    )}
-                  </ul>
-                </TableCell>
-                <TableCell>
-                  <ActionButton className="edit" onClick={() => router.push(`/editTraining/${training._id}`)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </ActionButton>
-                  <ActionButton className="delete" onClick={() => handleDeleteClick(training)}>
-                    <FontAwesomeIcon icon={faTrash} />
-                  </ActionButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableBody>
+          </Table>
 
-        <PaginationContainer>
-          {[...Array(totalPages)].map((_, index) => (
-            <PaginationButton
-              key={index}
-              onClick={() => handlePagination(index + 1)}
-              active={currentPage === index + 1}
-            >
-              {index + 1}
-            </PaginationButton>
-          ))}
-        </PaginationContainer>
-      </>
+          <PaginationContainer>
+            {[...Array(totalPages)].map((_, index) => (
+              <PaginationButton
+                key={index}
+                onClick={() => handlePagination(index + 1)}
+                active={currentPage === index + 1}
+              >
+                {index + 1}
+              </PaginationButton>
+            ))}
+          </PaginationContainer>
+        </>
+      )}
 
       <DeleteConfirmationModal
         isOpen={modalOpen}
