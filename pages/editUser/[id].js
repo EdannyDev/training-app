@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Notification from '../../frontend/components/notification';
+import Spinner from '@/frontend/components/spinner';  
 import { 
   EditUserContainer, 
   EditUserCard,
@@ -26,6 +27,7 @@ const EditUser = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { id } = router.query;
 
@@ -35,8 +37,9 @@ const EditUser = () => {
 
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:5000/api/users/list/${id}`, {
-        headers: { Authorization: `Bearer ${getToken()}`},
+      setLoading(true);
+      axios.get(`https://backend-training-u5az.onrender.com/api/users/list/${id}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
       })
       .then(response => {
         setUser(response.data);
@@ -48,7 +51,8 @@ const EditUser = () => {
         setNotificationMessage('No se pudo cargar el usuario');
         setNotificationType('error');
         setShowNotification(true);
-      });
+      })
+      .finally(() => setLoading(false));
     }
   }, [id]);
 
@@ -110,8 +114,8 @@ const EditUser = () => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/users/update/${id}`, updatedData, {
-        headers: { Authorization: `Bearer ${getToken()}`},
+      await axios.put(`https://backend-training-u5az.onrender.com/api/users/update/${id}`, updatedData, {
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       setNotificationMessage('Usuario actualizado con éxito');
       setNotificationType('success');
@@ -128,53 +132,64 @@ const EditUser = () => {
     }
   };
 
+  const handleGoBack = (e) => {
+    e.preventDefault();
+    router.push('/users');
+  };
+
   return (
-    <EditUserContainer>
-      {showNotification && (
-        <Notification
-          message={notificationMessage}
-          type={notificationType}
-          onClose={() => setShowNotification(false)}
-        />
+    <>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <EditUserContainer>
+          {showNotification && (
+            <Notification
+              message={notificationMessage}
+              type={notificationType}
+              onClose={() => setShowNotification(false)}
+            />
+          )}
+          <EditUserCard>
+            <EditUserTitle>Editar Usuario</EditUserTitle>
+            <form onSubmit={handleSubmit}>
+              <EditUserInput
+                type="text"
+                placeholder="Nombre"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength="30"
+                required
+              />
+              <EditUserInput
+                type="email"
+                placeholder="Correo Electrónico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                maxLength="50"
+                required
+              />
+              <EditUserInput
+                type="text"
+                placeholder="Rol"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                maxLength="25"
+                required
+              />
+              <ButtonGroup>
+                <EditUserButton type="submit">
+                  <FontAwesomeIcon icon={faSave} /> Actualizar Usuario
+                </EditUserButton>
+                <BackButton onClick={handleGoBack}>
+                  <FontAwesomeIcon icon={faArrowLeft} /> Regresar
+                </BackButton>
+              </ButtonGroup>
+            </form>
+          </EditUserCard>
+        </EditUserContainer>
       )}
-      <EditUserCard>
-        <EditUserTitle>Editar Usuario</EditUserTitle>
-        <form onSubmit={handleSubmit}>
-          <EditUserInput
-            type="text"
-            placeholder="Nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength="30"
-            required
-          />
-          <EditUserInput
-            type="email"
-            placeholder="Correo Electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            maxLength="50"
-            required
-          />
-          <EditUserInput
-            type="text"
-            placeholder="Rol"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            maxLength="25"
-            required
-          />
-          <ButtonGroup>
-            <EditUserButton type="submit">
-              <FontAwesomeIcon icon={faSave} /> Actualizar Usuario
-            </EditUserButton>
-            <BackButton onClick={() => router.push('/users')}>
-              <FontAwesomeIcon icon={faArrowLeft} /> Regresar
-            </BackButton>
-          </ButtonGroup>
-        </form>
-      </EditUserCard>
-    </EditUserContainer>
+    </>
   );
 };
 

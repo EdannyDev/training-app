@@ -76,7 +76,7 @@ const AddFAQ = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/faqs',
+        'https://backend-training-u5az.onrender.com/api/faqs',
         { question, answer, roles },
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}`} }
       );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Spinner from '@/frontend/components/spinner';
 import { 
   Container, 
   Title, 
@@ -23,9 +24,11 @@ const FAQs = () => {
   const [minLength] = useState(3);
   const [maxLength] = useState(50);
   const [noFAQsError, setNoFAQsError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFAQs = async () => {
+      setLoading(true);
       const token = localStorage.getItem('token');
       if (!token) {
         setError('No se encuentra el token de autenticación');
@@ -33,7 +36,7 @@ const FAQs = () => {
       }
 
       try {
-        const { data } = await axios.get('http://localhost:5000/api/faqs', {
+        const { data } = await axios.get('https://backend-training-u5az.onrender.com/api/faqs', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -45,6 +48,8 @@ const FAQs = () => {
         }
       } catch {
         setError('Error al obtener las FAQs');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -82,6 +87,10 @@ const FAQs = () => {
   };
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (  
     <Container>
       <Title>Preguntas Frecuentes (FAQs)</Title>
       <InputSearch>
@@ -120,6 +129,8 @@ const FAQs = () => {
         ))}
       </FAQList>
     </Container>
+    )}
+   </>
   );
 };
 

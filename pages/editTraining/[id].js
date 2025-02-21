@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Notification from '../../frontend/components/notification';
+import Spinner from '@/frontend/components/spinner';
 import { 
   Container, 
   Title, 
@@ -45,14 +46,16 @@ const EditTraining = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
+  const [loading, setLoading] = useState(true);
 
   const allRoles = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
 
   useEffect(() => {
     const fetchTraining = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/training/${id}`, {
+        const response = await axios.get(`https://backend-training-u5az.onrender.com/api/training/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -87,7 +90,9 @@ const EditTraining = () => {
         setPreviewVideo(video?.fileUrl || '');
       } catch (err) {
         handleNotification('Error al cargar los datos del material', 'error');
-      } 
+      } finally {
+        setLoading(false);
+      }    
     };
 
     if (id) fetchTraining();
@@ -269,7 +274,7 @@ const EditTraining = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/training/${id}`, updatedData, {
+      await axios.put(`https://backend-training-u5az.onrender.com/api/training/${id}`, updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -281,6 +286,10 @@ const EditTraining = () => {
   };
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (
     <Container>
       {showNotification && (
         <Notification message={notificationMessage} type={notificationType} onClose={() => setShowNotification(false)} />
@@ -348,6 +357,8 @@ const EditTraining = () => {
         </ButtonContainer>
       </Form>
     </Container>
+    )}
+   </>
   );
 };
 

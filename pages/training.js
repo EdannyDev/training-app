@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Spinner from '@/frontend/components/spinner';
 import {
   SectionTitle,
   ModuleContainer,
@@ -27,12 +28,14 @@ const CapacitationPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [noMaterialsError, setNoMaterialsError] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const minLength = 3;
   const maxLength = 50;
 
   useEffect(() => {
     const fetchMaterials = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -40,7 +43,7 @@ const CapacitationPage = () => {
           return;
         }
 
-        const response = await axios.get('http://localhost:5000/api/training', {
+        const response = await axios.get('https://backend-training-u5az.onrender.com/api/training', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -52,6 +55,8 @@ const CapacitationPage = () => {
         }
       } catch (err) {
         console.error('Error al cargar los materiales de capacitación:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -120,6 +125,10 @@ const CapacitationPage = () => {
     };
 
     return (
+      <>
+      {loading ? (
+      <Spinner />
+      ) : (
       <div>
         {documentUrl && (
           <ButtonLink href={documentUrl} target="_blank" rel="noopener noreferrer">
@@ -135,10 +144,16 @@ const CapacitationPage = () => {
           </ButtonLink>
         )}
       </div>
+      )}
+     </>
     );
   };
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (
     <ContentContainer>
       <Title>Material de Capacitación</Title>
 
@@ -200,6 +215,8 @@ const CapacitationPage = () => {
         ))
       )}
     </ContentContainer>
+    )}
+   </>
   );
 };
 

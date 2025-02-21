@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Spinner from '@/frontend/components/spinner';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -14,18 +15,22 @@ const Profile = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get('http://localhost:5000/api/users/profile', {
+        const { data } = await axios.get('https://backend-training-u5az.onrender.com/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser({ ...data, newPassword: '' });
         setOriginalData({ ...data, password: '' });
       } catch {
         showNotification('Error al cargar el perfil', 'error');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -85,7 +90,7 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/users/profile', {
+      await axios.put('https://backend-training-u5az.onrender.com/api/users/profile', {
         name: user.name, email: user.email, password: user.newPassword,
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -113,7 +118,7 @@ const Profile = () => {
     setTimeout(async () => {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete('http://localhost:5000/api/users/profile', {
+        await axios.delete('https://backend-training-u5az.onrender.com/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
         localStorage.removeItem('token');
@@ -125,6 +130,10 @@ const Profile = () => {
   };
 
   return (
+    <>
+    {loading ? (
+    <Spinner />
+    ) : (
     <ProfileContainer>
       <h1>Configuración de Perfil</h1>
       {notification && <Notification message={notification.message} type={notification.type} onClose={() => setNotification(null)} />}
@@ -201,6 +210,8 @@ const Profile = () => {
         onDelete={handleDeleteAccount}
       />
     </ProfileContainer>
+    )}
+   </>
   );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Notification from '../../frontend/components/notification';
+import Spinner from '@/frontend/components/spinner';
 import { 
   EditFAQContainer, 
   EditFAQCard,
@@ -24,13 +25,15 @@ const EditFAQ = () => {
   const [roles, setRoles] = useState([]);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const { id } = router.query;
 
   useEffect(() => {
     if (id) {
       const fetchFAQ = async () => {
+        setLoading(true);
         try {
-          const { data } = await axios.get(`http://localhost:5000/api/faqs/${id}`, {
+          const { data } = await axios.get(`https://backend-training-u5az.onrender.com/api/faqs/${id}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
           });
           setFaq(data);
@@ -39,6 +42,8 @@ const EditFAQ = () => {
           setRoles(data.roles);
         } catch (error) {
           setNotification({ show: true, message: 'Error al cargar el FAQ. Intenta nuevamente.', type: 'error' });
+        } finally {
+          setLoading(false);
         }
       };
       fetchFAQ();
@@ -83,7 +88,7 @@ const EditFAQ = () => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/faqs/${id}`, updatedData, {
+      await axios.put(`https://backend-training-u5az.onrender.com/api/faqs/${id}`, updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setNotification({ show: true, message: 'Cambios guardados correctamente. Verifica en la lista de FAQs.', type: 'success' });
@@ -102,6 +107,10 @@ const EditFAQ = () => {
   };
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (    
     <EditFAQContainer>
       {notification.show && <Notification message={notification.message} type={notification.type} onClose={() => setNotification({ show: false })} />}
       <EditFAQCard>
@@ -149,6 +158,8 @@ const EditFAQ = () => {
         </form>
       </EditFAQCard>
     </EditFAQContainer>
+    )}
+   </>
   );
 };
 
