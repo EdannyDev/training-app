@@ -144,6 +144,10 @@ const TrainingTable = () => {
   const totalPages = Math.ceil(filteredTrainings.length / 5);
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (
     <Container>
       <Title>Control de Capacitación</Title>
       <SearchContainer>
@@ -175,74 +179,68 @@ const TrainingTable = () => {
         />
       )}
 
-      {loading ? (
-        <Spinner />
-      ) : (
-        <>
-          <Table>
-            <TableHead>
-              <tr>
-                {['Título', 'Descripción', 'Tipo', 'Roles', 'Sección', 'Módulo', 'Submódulo', 'Archivo', 'Acciones'].map((header) => (
-                  <TableCell key={header} className={header === 'Acciones' ? '' : 'center'}>{header}</TableCell>
-                ))}
-              </tr>
-            </TableHead>
-            <TableBody>
-              {currentTrainings.map((training, index) => (
-                <TableRow key={training._id} className={index % 2 === 0 ? 'striped' : ''}>
-                  <TableCell>{truncateText(training.title, 20)}</TableCell>
-                  <TableCell>{truncateText(training.description, 30)}</TableCell>
-                  <TableCell className="center">
-                    {training.document && training.video ? 'Documento y Video' : training.document ? 'Documento' : 'Video'}
-                  </TableCell>
-                  <TableCell className="center">{truncateText(training.roles.join(', '), 20)}</TableCell>
-                  <TableCell className="center">{truncateText(training.section, 30, 'Sección no disponible')}</TableCell>
-                  <TableCell className="center">{truncateText(training.module, 30, 'Módulo no disponible')}</TableCell>
-                  <TableCell className="center">{truncateText(training.submodule, 30, 'Submódulo no disponible')}</TableCell>
-                  <TableCell className="center">
-                    <ul>
-                      {training.document && (
-                        <li>
-                          <FileLink href={training.document.fileUrl} target="_blank" rel="noopener noreferrer">
-                            {truncateText(training.document.originalFileName, 30)}.{training.document.fileUrl.split('.').pop()}
-                          </FileLink>
-                        </li>
-                      )}
-                      {training.video && (
-                        <li>
-                          <FileLink href={training.video.fileUrl} target="_blank" rel="noopener noreferrer">
-                            {truncateText(training.video.originalFileName, 30)}.{training.video.fileUrl.split('.').pop()}
-                          </FileLink>
-                        </li>
-                      )}
-                    </ul>
-                  </TableCell>
-                  <TableCell>
-                    <ActionButton className="edit" onClick={() => router.push(`/editTraining/${training._id}`)}>
-                      <FontAwesomeIcon icon={faEdit} />
-                    </ActionButton>
-                    <ActionButton className="delete" onClick={() => handleDeleteClick(training)}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </ActionButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          <PaginationContainer>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationButton
-                key={index}
-                onClick={() => handlePagination(index + 1)}
-                active={currentPage === index + 1}
-              >
-                {index + 1}
-              </PaginationButton>
+      <Table>
+        <TableHead>
+          <tr>
+            {['Título', 'Descripción', 'Tipo', 'Roles', 'Sección', 'Módulo', 'Submódulo', 'Archivo', 'Acciones'].map((header) => (
+              <TableCell key={header} className={header === 'Acciones' ? '' : 'center'}>{header}</TableCell>
             ))}
-          </PaginationContainer>
-        </>
-      )}
+          </tr>
+        </TableHead>
+        <TableBody>
+          {currentTrainings.map((training, index) => (
+            <TableRow key={training._id} className={index % 2 === 0 ? 'striped' : ''}>
+              <TableCell>{truncateText(training.title, 20)}</TableCell>
+              <TableCell>{truncateText(training.description, 30)}</TableCell>
+              <TableCell className="center">
+                {training.document && training.video ? 'Documento y Video' : training.document ? 'Documento' : 'Video'}
+              </TableCell>
+              <TableCell className="center">{truncateText(training.roles.join(', '), 20)}</TableCell>
+              <TableCell className="center">{truncateText(training.section, 30, 'Sección no disponible')}</TableCell>
+              <TableCell className="center">{truncateText(training.module, 30, 'Módulo no disponible')}</TableCell>
+              <TableCell className="center">{truncateText(training.submodule, 30, 'Submódulo no disponible')}</TableCell>
+              <TableCell className="center">
+                <ul>
+                  {training.document && (
+                    <li>
+                      <FileLink href={training.document.fileUrl} target="_blank" rel="noopener noreferrer">
+                        {truncateText(training.document.originalFileName, 30)}.{training.document.fileUrl.split('.').pop()}
+                      </FileLink>
+                    </li>
+                  )}
+                  {training.video && (
+                    <li>
+                      <FileLink href={training.video.fileUrl} target="_blank" rel="noopener noreferrer">
+                        {truncateText(training.video.originalFileName, 30)}.{training.video.fileUrl.split('.').pop()}
+                      </FileLink>
+                    </li>
+                  )}
+                </ul>
+              </TableCell>
+              <TableCell>
+                <ActionButton className="edit" onClick={() => router.push(`/editTraining/${training._id}`)}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </ActionButton>
+                <ActionButton className="delete" onClick={() => handleDeleteClick(training)}>
+                  <FontAwesomeIcon icon={faTrash} />
+                </ActionButton>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <PaginationContainer>
+        {[...Array(totalPages)].map((_, index) => (
+          <PaginationButton
+            key={index}
+            onClick={() => handlePagination(index + 1)}
+            active={currentPage === index + 1}
+          >
+            {index + 1}
+          </PaginationButton>
+        ))}
+      </PaginationContainer>
 
       <DeleteConfirmationModal
         isOpen={modalOpen}
@@ -251,6 +249,8 @@ const TrainingTable = () => {
         title={selectedTraining?.title}
       />
     </Container>
+    )}
+   </>
   );
 
   function truncateText(text, length, fallback = '') {

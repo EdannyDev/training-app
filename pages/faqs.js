@@ -145,6 +145,10 @@ const FAQTable = () => {
   const handleGoToTraining = () => router.push('/table');
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (
     <Container>
       <Title>Control de FAQs</Title>
       <SearchContainer>
@@ -168,7 +172,6 @@ const FAQTable = () => {
         </AddButton>
       </SearchContainer>
 
-      {loading && <Spinner />}
       <Table>
         <TableHead>
           <tr>
@@ -209,6 +212,8 @@ const FAQTable = () => {
         ))}
       </PaginationContainer>
 
+
+
       {notification && (
         <Notification
           message={notification.message}
@@ -224,6 +229,8 @@ const FAQTable = () => {
         title={selectedFAQ?.question}
       />
     </Container>
+    )}
+   </>
   );
 };
 

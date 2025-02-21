@@ -128,6 +128,10 @@ const UserManagement = () => {
   const handleEdit = (userId) => router.push(`/editUser/${userId}`);
 
   return (
+    <>
+    {loading ? (
+      <Spinner />
+    ) : (
     <UserTableContainer>
       <UserManagementTitle>Control de Usuarios</UserManagementTitle>
       <SearchContainer>
@@ -152,7 +156,6 @@ const UserManagement = () => {
         />
       )}
 
-      {loading && <Spinner />}
       <UserTable>
         <UserTableHead>
           <tr>
@@ -199,6 +202,8 @@ const UserManagement = () => {
         onDelete={handleDelete}
       />
     </UserTableContainer>
+    )}
+   </>
   );
 };
 
