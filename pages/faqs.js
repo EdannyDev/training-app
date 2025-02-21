@@ -116,6 +116,7 @@ const FAQTable = () => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -138,6 +139,8 @@ const FAQTable = () => {
       console.error('Error deleting FAQ:', error);
       setModalOpen(false);
       setNotification({ message: 'Error al eliminar la FAQ', type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 

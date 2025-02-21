@@ -102,6 +102,7 @@ const UserManagement = () => {
   };
 
   const handleDelete = () => {
+    setLoading(true);
     axios
       .delete(`https://backend-training-u5az.onrender.com/api/users/delete/${userToDelete}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
@@ -121,6 +122,7 @@ const UserManagement = () => {
       )
       .finally(() => {
         setModalOpen(false);
+        setLoading(false);
         setUserToDelete(null);
       });
   };
