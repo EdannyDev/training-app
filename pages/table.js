@@ -47,7 +47,7 @@ const TrainingTable = () => {
   const fetchTrainings = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('https://backend-training-u5az.onrender.com/api/training', {
+      const { data } = await axios.get('http://localhost:5000/api/training', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
 
@@ -116,25 +116,29 @@ const TrainingTable = () => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
-      await axios.delete(`https://backend-training-u5az.onrender.com/api/training/${selectedTraining._id}`, {
+      await axios.delete(`http://localhost:5000/api/training/${selectedTraining._id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
+      });  
       const updatedTrainings = trainings.filter(t => t._id !== selectedTraining._id);
       setTrainings(updatedTrainings);
       setFilteredTrainings(updatedTrainings);
-      setModalOpen(false);
+      setModalOpen(false);  
       const totalPages = Math.ceil(updatedTrainings.length / 5);
       const lastPageWithData = totalPages > 0 ? totalPages : 1;
       if ((currentPage - 1) * 5 >= updatedTrainings.length) {
         const newPage = Math.max(currentPage - 1, 1);
         setCurrentPage(newPage);
-      }
-      setNotification({ type: 'success', message: 'Capacitación eliminada exitosamente' });
+      }  
+      setNotification({ type: 'success', message: 'Capacitación eliminada exitosamente' });  
+      await fetchTrainings();
     } catch (error) {
       setNotification({ type: 'error', message: 'Error al eliminar la capacitación' });
+    } finally {
+      setLoading(false);
     }
-  };
+  };  
 
   const currentTrainings = filteredTrainings.slice((currentPage - 1) * 5, currentPage * 5);
   const totalPages = Math.ceil(filteredTrainings.length / 5);

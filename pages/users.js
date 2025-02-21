@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import Spinner from '@/frontend/components/spinner';
 import {
   UserTableContainer,
   UserTable,
@@ -29,6 +30,7 @@ const UserManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const usersPerPage = 5;
@@ -39,6 +41,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
         const response = await axios.get('http://localhost:5000/api/users/list', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
@@ -46,7 +49,9 @@ const UserManagement = () => {
         setUsers(response.data);
       } catch (error) {
         setNotification({ show: true, message: 'Error al cargar usuarios', type: 'error' });
-      }
+      } finally {
+        setLoading(false);
+      }  
     };
 
     fetchUsers();
@@ -147,6 +152,7 @@ const UserManagement = () => {
         />
       )}
 
+      {loading && <Spinner />}
       <UserTable>
         <UserTableHead>
           <tr>

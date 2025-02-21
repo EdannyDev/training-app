@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import Spinner from '@/frontend/components/spinner';
 import {
   Container,
   Title,
@@ -32,6 +33,7 @@ const FAQTable = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFAQ, setSelectedFAQ] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const minLength = 3;
@@ -41,6 +43,7 @@ const FAQTable = () => {
 
   useEffect(() => {
     const fetchFaqs = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -55,7 +58,9 @@ const FAQTable = () => {
       } catch (error) {
         console.error('Error fetching FAQs:', error);
         setNotification({ message: 'Error al obtener las FAQs', type: 'error' });
-      }
+      } finally {
+        setLoading(false);
+      }  
     };
 
     fetchFaqs();
@@ -163,6 +168,7 @@ const FAQTable = () => {
         </AddButton>
       </SearchContainer>
 
+      {loading && <Spinner />}
       <Table>
         <TableHead>
           <tr>

@@ -87,7 +87,7 @@ const EditTraining = () => {
         setPreviewVideo(video?.fileUrl || '');
       } catch (err) {
         handleNotification('Error al cargar los datos del material', 'error');
-      }
+      } 
     };
 
     if (id) fetchTraining();
@@ -285,7 +285,6 @@ const EditTraining = () => {
       {showNotification && (
         <Notification message={notificationMessage} type={notificationType} onClose={() => setShowNotification(false)} />
       )}
-
       <Form onSubmit={handleSubmit}>
         <Title>Editar Capacitación</Title>
         <Input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Título" required />
