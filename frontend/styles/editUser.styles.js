@@ -73,6 +73,10 @@ export const EditUserButton = styled.button`
     background-color: #ff9800;
   }
 
+  svg {
+    margin-right: 5px;
+  }
+
   @media (max-width: 768px) {
     font-size: 14px;
     padding: 10px 18px;
@@ -91,6 +95,10 @@ export const BackButton = styled.button`
 
   &:hover {
     background-color: #495057;
+  }
+
+  svg {
+    margin-right: 5px;
   }
 
   @media (max-width: 768px) {

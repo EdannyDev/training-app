@@ -132,19 +132,21 @@ export const AddFAQButton = styled.button`
   color: white;
   padding: 14px 24px;
   font-size: 16px;
-  display: flex;
   align-items: center;
-  gap: 8px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 
-  &:disabled {
-    background-color: #ccc;
-  }
-
   &:hover {
     background-color: #45a049;
+  }
+
+  svg {
+    margin-right: 5px;
+  }
+
+  &:disabled {
+    background-color: #ccc;
   }
 
   @media (max-width: 768px) {
@@ -158,15 +160,17 @@ export const BackButton = styled.button`
   color: white;
   padding: 14px 24px;
   font-size: 16px;
-  display: flex;
   align-items: center;
-  gap: 8px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 
   &:hover {
     background-color: #5a6268;
+  }
+
+  svg {
+    margin-right: 5px;
   }
 
   @media (max-width: 768px) {

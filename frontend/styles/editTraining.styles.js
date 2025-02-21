@@ -165,7 +165,6 @@ export const EditTrainingButton = styled.button`
   background-color: #ffc107;
   color: #fff;
   border: none;
-  display: flex;
   align-items: center;
   border-radius: 4px;
   font-size: 16px;
@@ -177,7 +176,7 @@ export const EditTrainingButton = styled.button`
   }
 
   svg {
-    margin-right: 8px;
+    margin-right: 5px;
   }
 
   @media (max-width: 768px) {
@@ -191,7 +190,6 @@ export const BackButton = styled.button`
   background-color: #6c757d;
   color: #fff;
   border: none;
-  display: flex;
   align-items: center;
   border-radius: 4px;
   font-size: 16px;
@@ -203,7 +201,7 @@ export const BackButton = styled.button`
   }
 
   svg {
-    margin-right: 8px;
+    margin-right: 5px;
   }
 
   @media (max-width: 768px) {

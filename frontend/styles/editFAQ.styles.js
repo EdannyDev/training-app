@@ -125,15 +125,17 @@ export const EditFAQButton = styled.button`
   color: white;
   padding: 14px 24px;
   border: none;
-  display: flex;
   align-items: center;
-  gap: 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
 
   &:hover {
     background-color: #ff9800;
+  }
+
+  svg {
+    margin-right: 5px;
   }
 
   &:disabled {
