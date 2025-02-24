@@ -153,7 +153,7 @@ const Profile = () => {
               maxLength="30"
             />
           </InputWrapper>
-          <Description>Nombre con el que aparecerás en el sistema.</Description>
+          <Description>Nombre con el que aparecerás en la app.</Description>
         </InputContainer>
         <Line />
 
@@ -172,7 +172,7 @@ const Profile = () => {
           </InputWrapper>
             {userRole === 'admin' ? (
               <Description>
-                Correo del administrador, puedes modificarlo según sea necesario.
+                Correo del administrador. Tienes acceso total en la app.
               </Description>
             ) : (
               <Description>
