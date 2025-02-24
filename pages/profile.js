@@ -10,6 +10,7 @@ import DeleteConfirmationModal from '../frontend/components/modalDelete';
 
 const Profile = () => {
   const [user, setUser] = useState({ name: '', email: '', newPassword: '', role: '' });
+  const [userRole, setUserRole] = useState('');
   const [originalData, setOriginalData] = useState({ name: '', email: '', role: '' });
   const [notification, setNotification] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +28,7 @@ const Profile = () => {
         });
         setUser({ ...data, newPassword: '' });
         setOriginalData({ ...data, password: '' });
+        setUserRole(data.role);
       } catch {
         showNotification('Error al cargar el perfil', 'error');
       } finally {
@@ -165,6 +167,7 @@ const Profile = () => {
               value={user.email}
               onChange={handleChange}
               maxLength="50"
+              disabled={userRole !== 'admin'}
             />
           </InputWrapper>
           <Description>Correo asignado por RH para accesar a la app.</Description>
