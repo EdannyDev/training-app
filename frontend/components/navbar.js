@@ -90,6 +90,7 @@ const Navbar = () => {
 
   const handleLogoClick = () => {
     router.push(role === 'admin' ? '/table' : '/training');
+    setMobileMenuOpen(false);
   };
 
   const handleNavButtonClick = (path) => {
