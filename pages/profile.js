@@ -171,9 +171,13 @@ const Profile = () => {
             />
           </InputWrapper>
             {userRole === 'admin' ? (
-              <Description>Como administrador, puedes modificar tu correo electrónico.</Description>
+              <Description>
+                Correo del administrador, puedes modificarlo según sea necesario.
+              </Description>
             ) : (
-              <Description>Correo asignado por RH. NO es editable.</Description>
+              <Description>
+                Correo asociado a tu puesto en ventas. <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>NO</span> es editable.
+              </Description>
             )}
         </InputContainer>
         <Line />
@@ -199,7 +203,9 @@ const Profile = () => {
 
         <InputContainer>
           <p><strong>Rol:</strong> {user.role}</p>
-          <Description>Tu rol asignado dentro del sistema. NO es editable.</Description>
+          <Description>
+            Tu rol asignado dentro del sistema. <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>NO</span> es editable.
+          </Description>
         </InputContainer>
         <Line />
 
