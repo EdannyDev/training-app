@@ -58,14 +58,7 @@ const TrainingTable = () => {
       setTrainings(trainingsArray);
       setFilteredTrainings(trainingsArray);
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        setNotification({
-          type: 'warning',
-          message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
-        });
-      } else {
-        setNotification({ type: 'error', message: 'Error al cargar las capacitaciones' });
-      }
+      setNotification({ type: 'error', message: 'Error al cargar las capacitaciones' });
     } finally {
       setLoading(false);
     }
