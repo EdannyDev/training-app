@@ -170,7 +170,11 @@ const Profile = () => {
               disabled={userRole !== 'admin'}
             />
           </InputWrapper>
-          <Description>Correo asignado por RH para accesar a la app.</Description>
+            {userRole === 'admin' ? (
+              <Description>Como administrador, puedes modificar tu correo electrónico.</Description>
+            ) : (
+              <Description>Correo asignado por RH. NO es editable.</Description>
+            )}
         </InputContainer>
         <Line />
 
