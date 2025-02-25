@@ -228,7 +228,7 @@ export const ModalFooter = styled.div`
   gap: 15px;
 
   @media (max-width: 480px) {
-    flex-direction: column;
+    flex-direction: space-between;
   }
 `;
 
