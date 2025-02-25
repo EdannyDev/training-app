@@ -14,13 +14,14 @@ import {
   SectionDivider,
   ContentContainer,
   ErrorBadge,
+  WarningBadge,
   InputSearch,
   IconWrapper,
   NoSubmoduleText,
   ButtonLink
 } from '../frontend/styles/training.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationCircle, faExclamationTriangle, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const CapacitationPage = () => {
   const [materials, setMaterials] = useState({});
@@ -28,6 +29,7 @@ const CapacitationPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [noMaterialsError, setNoMaterialsError] = useState(false);
   const [error, setError] = useState('');
+  const [warning, setWarning] = useState('');
   const [loading, setLoading] = useState(true);
 
   const minLength = 3;
@@ -39,7 +41,7 @@ const CapacitationPage = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.error('Token de autenticación no encontrado.');
+          setError('No se encuentra el token de autenticación');
           return;
         }
 
@@ -54,7 +56,11 @@ const CapacitationPage = () => {
           setFilteredMaterials(response.data);
         }
       } catch (err) {
-        console.error('Error al cargar los materiales de capacitación:', err);
+        if (err.response && err.response.status === 401) {
+          setWarning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+        } else {
+          setError('Error al cargar los materiales');
+        }
       } finally {
         setLoading(false);
       }
@@ -66,18 +72,18 @@ const CapacitationPage = () => {
   const handleSearch = (e) => {
     let query = e.target.value;
     query = query.replace(/\s+/g, ' ');
-  
+
     if (query.length > maxLength) {
       query = query.slice(0, maxLength);
     }
     setSearchQuery(query);
-  
+
     if (query === '') {
       setError('');
       setFilteredMaterials(materials);
       return;
     }
-  
+
     if (query.length < minLength) {
       setError(`La búsqueda debe tener al menos ${minLength} caracteres.`);
       setFilteredMaterials({});
@@ -85,7 +91,7 @@ const CapacitationPage = () => {
     } else {
       setError('');
     }
-  
+
     const filtered = Object.keys(materials).reduce((acc, section) => {
       const filteredModules = Object.keys(materials[section]).reduce((modAcc, module) => {
         const filteredMaterialsForModule = materials[section][module].filter((material) =>
@@ -98,125 +104,111 @@ const CapacitationPage = () => {
             material.module,
           ].some(val => val?.toLowerCase().includes(query.toLowerCase()))
         );
-  
+
         if (filteredMaterialsForModule.length > 0) {
           modAcc[module] = filteredMaterialsForModule;
         }
-  
+
         return modAcc;
       }, {});
-  
+
       if (Object.keys(filteredModules).length > 0) {
         acc[section] = filteredModules;
       }
-  
+
       return acc;
     }, {});
     setFilteredMaterials(filtered);
-  };  
-  
-  const renderMaterialLink = (material) => {
-    const documentUrl = material.document?.fileUrl;
-    const videoUrl = material.video?.fileUrl;
-
-    const renderFileExtension = (fileUrl) => {
-      const fileExtension = fileUrl.split('.').pop();
-      return `.${fileExtension}`;
-    };
-
-    return (
-      <>
-      {loading ? (
-      <Spinner />
-      ) : (
-      <div>
-        {documentUrl && (
-          <ButtonLink href={documentUrl} target="_blank" rel="noopener noreferrer">
-            {material.document?.originalFileName}{renderFileExtension(documentUrl)}
-          </ButtonLink>
-        )}
-        {documentUrl && videoUrl && (
-          <span style={{ margin: '0 6px 0 -1px', fontSize: '18px' }}>|</span>
-        )}
-        {videoUrl && (
-          <ButtonLink href={videoUrl} target="_blank" rel="noopener noreferrer">
-            {material.video?.originalFileName}{renderFileExtension(videoUrl)}
-          </ButtonLink>
-        )}
-      </div>
-      )}
-     </>
-    );
   };
 
   return (
     <>
-    {loading ? (
-      <Spinner />
-    ) : (
-    <ContentContainer>
-      <Title>Material de Capacitación</Title>
-
-      <InputSearch>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="Búsqueda de Materiales..."
-          maxLength={maxLength}
-        />
-        <IconWrapper>
-          <FontAwesomeIcon icon={faSearch} />
-        </IconWrapper>
-      </InputSearch>
-
-      <SectionDivider />
-
-      {error && (
-        <ErrorBadge>
-          <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> {error}
-        </ErrorBadge>
-      )}
-
-      {noMaterialsError ? (
-        <ErrorBadge>
-          <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> No hay materiales de capacitación disponibles.
-        </ErrorBadge>
+      {loading ? (
+        <Spinner />
       ) : (
-        Object.keys(filteredMaterials).map((section) => (
-          <div key={section}>
-            <SectionTitle>Sección: {section}</SectionTitle>
-            {Object.keys(filteredMaterials[section]).map((module) => (
-              <div key={module}>
-                <ModuleContainer>
-                  <ModuleTitle>Módulo: {module || 'Sin módulo'}</ModuleTitle>
-                  {filteredMaterials[section][module].length > 0 ? (
-                    filteredMaterials[section][module].map((material) => (
-                      <MaterialContainer key={material._id}>
-                        <MaterialTitle>Título: {material.title}</MaterialTitle>
-                        <MaterialDescription>Descripción: {material.description}</MaterialDescription>
-                        <MaterialRoles>Roles asignados: {material.roles?.join(', ') || 'No asignados'}</MaterialRoles>
-                        {material.submodule ? (
-                          <SubmoduleTitle>Submódulo: {material.submodule}</SubmoduleTitle>
-                        ) : (
-                          <NoSubmoduleText>Sin submódulo</NoSubmoduleText>
-                        )}
-                        <div>{renderMaterialLink(material)}</div>
-                      </MaterialContainer>
-                    ))
-                  ) : (
-                    <p>Este módulo no contiene materiales disponibles.</p>
-                  )}
-                </ModuleContainer>
-                <SectionDivider />
+        <ContentContainer>
+          <Title>Material de Capacitación</Title>
+
+          <InputSearch>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Búsqueda de Materiales..."
+              maxLength={maxLength}
+            />
+            <IconWrapper>
+              <FontAwesomeIcon icon={faSearch} />
+            </IconWrapper>
+          </InputSearch>
+
+          <SectionDivider />
+
+          {warning && (
+            <WarningBadge>
+              <FontAwesomeIcon icon={faExclamationTriangle} style={{ fontSize: '15px' }} /> {warning}
+            </WarningBadge>
+          )}
+
+          {error && (
+            <ErrorBadge>
+              <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> {error}
+            </ErrorBadge>
+          )}
+
+          {noMaterialsError ? (
+            <ErrorBadge>
+              <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> No hay materiales de capacitación disponibles.
+            </ErrorBadge>
+          ) : (
+            Object.keys(filteredMaterials).map((section) => (
+              <div key={section}>
+                <SectionTitle>Sección: {section}</SectionTitle>
+                {Object.keys(filteredMaterials[section]).map((module) => (
+                  <div key={module}>
+                    <ModuleContainer>
+                      <ModuleTitle>Módulo: {module || 'Sin módulo'}</ModuleTitle>
+                      {filteredMaterials[section][module].length > 0 ? (
+                        filteredMaterials[section][module].map((material) => (
+                          <MaterialContainer key={material._id}>
+                            <MaterialTitle>Título: {material.title}</MaterialTitle>
+                            <MaterialDescription>Descripción: {material.description}</MaterialDescription>
+                            <MaterialRoles>Roles asignados: {material.roles?.join(', ') || 'No asignados'}</MaterialRoles>
+                            {material.submodule ? (
+                              <SubmoduleTitle>Submódulo: {material.submodule}</SubmoduleTitle>
+                            ) : (
+                              <NoSubmoduleText>Sin submódulo</NoSubmoduleText>
+                            )}
+                            <div>
+                              {material.document?.fileUrl && (
+                                <ButtonLink href={material.document.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  {material.document?.originalFileName}
+                                </ButtonLink>
+                              )}
+                              {material.document?.fileUrl && material.video?.fileUrl && (
+                                <span style={{ margin: '0 6px 0 -1px', fontSize: '18px' }}>|</span>
+                              )}
+                              {material.video?.fileUrl && (
+                                <ButtonLink href={material.video.fileUrl} target="_blank" rel="noopener noreferrer">
+                                  {material.video?.originalFileName}
+                                </ButtonLink>
+                              )}
+                            </div>
+                          </MaterialContainer>
+                        ))
+                      ) : (
+                        <p>Este módulo no contiene materiales disponibles.</p>
+                      )}
+                    </ModuleContainer>
+                    <SectionDivider />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ))
+            ))
+          )}
+        </ContentContainer>
       )}
-    </ContentContainer>
-    )}
-   </>
+    </>
   );
 };
 

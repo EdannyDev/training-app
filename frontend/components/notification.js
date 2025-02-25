@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faExclamationCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faExclamationCircle, faExclamationTriangle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { NotificationContainer, NotificationContent, CloseButton } from '../styles/notification.styles';
 
 const Notification = ({ message, type, onClose }) => {
@@ -11,7 +11,14 @@ const Notification = ({ message, type, onClose }) => {
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const icon = type === 'success' ? faCheckCircle : faExclamationCircle;
+  let icon;
+  if (type === 'success') {
+    icon = faCheckCircle;
+  } else if (type === 'warning') {
+    icon = faExclamationTriangle;
+  } else {
+    icon = faExclamationCircle;
+  }
 
   return (
     <NotificationContainer type={type}>

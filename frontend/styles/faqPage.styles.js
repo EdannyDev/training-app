@@ -212,3 +212,28 @@ export const ErrorBadge = styled.div`
     padding: 6px;
   }
 `;
+
+export const WarningBadge = styled.div`
+  background-color: #f39c12;
+  color: white;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: bold;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  animation: ${fadeInUp} 0.5s ease-out;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  @media (max-width: 425px) {
+    font-size: 13px;
+    padding: 6px;
+  }
+`;

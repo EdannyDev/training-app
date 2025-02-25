@@ -15,7 +15,7 @@ const slideIn = keyframes`
 export const NotificationContainer = styled.div`
   position: fixed;
   top: 20px;
-  background-color: ${({ type }) => (type === 'success' ? '#28a745' : '#dc3545')};
+  background-color: ${({ type }) => type === 'success' ? '#28a745' : type === 'warning' ? '#f39c12' : '#dc3545' };
   color: #fff;
   padding: 15px 20px;
   border-radius: 8px;

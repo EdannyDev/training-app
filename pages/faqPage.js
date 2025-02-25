@@ -9,29 +9,34 @@ import {
   Question, 
   Answer,
   Divider, 
-  ErrorBadge, 
+  ErrorBadge,
+  WarningBadge, 
   InputSearch,
   IconWrapper,
 } from '../frontend/styles/faqPage.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationCircle, faExclamationTriangle, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const FAQs = () => {
   const [faqs, setFaqs] = useState([]);
   const [filteredFaqs, setFilteredFaqs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
-  const [minLength] = useState(3);
-  const [maxLength] = useState(50);
   const [noFAQsError, setNoFAQsError] = useState(false);
+  const [tokenExpired, setTokenExpired] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFAQs = async () => {
       setLoading(true);
+      setError('');
+      setNoFAQsError(false);
+      setTokenExpired(false);
+
       const token = localStorage.getItem('token');
       if (!token) {
         setError('No se encuentra el token de autenticación');
+        setLoading(false);
         return;
       }
 
@@ -46,8 +51,14 @@ const FAQs = () => {
           setFaqs(data);
           setFilteredFaqs(data);
         }
-      } catch {
-        setError('Error al obtener las FAQs');
+      } catch (error) {
+        if (error.response) {
+          if (error.response.status === 401) {
+            setTokenExpired(true);
+          } else {
+            setError('Error al obtener las FAQs');
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -59,78 +70,77 @@ const FAQs = () => {
   const handleSearch = (e) => {
     let query = e.target.value;
     query = query.replace(/\s+/g, ' ');
-    
-    if (query.length > maxLength) {
-      query = query.slice(0, maxLength);
-    }
+
     setSearchQuery(query);
 
-    if (query === '') {
+    if (query.length === 0) {
       setFilteredFaqs(faqs);
-      setError('');
       return;
-    }
-
-    if (query.length < minLength || query.length > maxLength) {
-      setError(`La búsqueda debe tener entre ${minLength} y ${maxLength} caracteres.`);
-      setFilteredFaqs([]);
-      return;
-    } else {
-      setError('');
     }
 
     const filtered = faqs.filter(({ question, answer }) =>
-      question.toLowerCase().includes(query) ||
-      answer.toLowerCase().includes(query)
+      question.toLowerCase().includes(query.toLowerCase()) ||
+      answer.toLowerCase().includes(query.toLowerCase())
     );
+
     setFilteredFaqs(filtered);
   };
 
   return (
     <>
-    {loading ? (
-      <Spinner />
-    ) : (  
-    <Container>
-      <Title>Preguntas Frecuentes (FAQs)</Title>
-      <InputSearch>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="Búsqueda de FAQ..."
-          maxLength={maxLength}
-        />
-        <IconWrapper>
-          <FontAwesomeIcon icon={faSearch} />
-        </IconWrapper>
-      </InputSearch>
-      <Divider />
-      
-      {error && (
-        <ErrorBadge>
-          <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> {error}
-        </ErrorBadge>
-      )}
+      {loading ? (
+        <Spinner />
+      ) : (  
+        <Container>
+          <Title>Preguntas Frecuentes (FAQs)</Title>
 
-      {noFAQsError && (
-        <ErrorBadge>
-          <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> No hay preguntas frecuentes disponibles.
-        </ErrorBadge>
-      )}
+          <InputSearch>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Búsqueda de FAQ..."
+            />
+            <IconWrapper>
+              <FontAwesomeIcon icon={faSearch} />
+            </IconWrapper>
+          </InputSearch>
 
-      <FAQList>
-        {filteredFaqs.map(({ _id, question, answer }, index) => (
-          <FAQItem key={_id} delay={index * 0.1}>
-            <Question>{question}</Question>
-            <Answer>{answer}</Answer>
-            <Divider />
-          </FAQItem>
-        ))}
-      </FAQList>
-    </Container>
-    )}
-   </>
+          <Divider />
+
+          {tokenExpired && (
+            <WarningBadge>
+              <FontAwesomeIcon icon={faExclamationTriangle} style={{ fontSize: '15px' }} />
+              &nbsp;Tu sesión ha expirado. Por favor, inicia sesión nuevamente.
+            </WarningBadge>
+          )}
+
+          {noFAQsError && (
+            <ErrorBadge>
+              <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> 
+              &nbsp;No hay preguntas frecuentes disponibles.
+            </ErrorBadge>
+          )}
+
+          {error && !tokenExpired && !noFAQsError && (
+            <ErrorBadge>
+              <FontAwesomeIcon icon={faExclamationCircle} style={{ fontSize: '15px' }} /> 
+              {error}
+            </ErrorBadge>
+          )}
+
+          <FAQList>
+            {filteredFaqs.map(({ _id, question, answer }, index) => (
+              <FAQItem key={_id} delay={index * 0.1}>
+                <Question>{question}</Question>
+                <Answer>{answer}</Answer>
+                <Divider />
+              </FAQItem>
+            ))}
+          </FAQList>
+        </Container>
+      )}
+    </>
   );
 };
 

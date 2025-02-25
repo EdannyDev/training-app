@@ -56,8 +56,14 @@ const FAQTable = () => {
         });
         setFaqs(response.data);
       } catch (error) {
-        console.error('Error fetching FAQs:', error);
+        if (error.response && error.response.status === 401) {
+          setNotification({
+            type: 'warning',
+            message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+          });
+          } else {
         setNotification({ message: 'Error al obtener las FAQs', type: 'error' });
+        }
       } finally {
         setLoading(false);
       }  
@@ -124,9 +130,11 @@ const FAQTable = () => {
         setModalOpen(false);
         return;
       }
+      
       await axios.delete(`https://backend-training-u5az.onrender.com/api/faqs/${selectedFAQ._id}`, {
-        headers: { Authorization: `Bearer ${token}`}, 
+        headers: { Authorization: `Bearer ${token}` },
       });
+
       const updatedFaqs = faqs.filter(f => f._id !== selectedFAQ._id);
       setFaqs(updatedFaqs);
       setModalOpen(false);
@@ -136,9 +144,15 @@ const FAQTable = () => {
       }
       setNotification({ message: 'FAQ eliminada correctamente', type: 'success' });
     } catch (error) {
-      console.error('Error deleting FAQ:', error);
+      if (error.response && error.response.status === 401) {
+        setNotification({
+          type: 'warning',
+          message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+        });
+      } else {
+        setNotification({ message: 'Error al eliminar la FAQ', type: 'error' });
+      }
       setModalOpen(false);
-      setNotification({ message: 'Error al eliminar la FAQ', type: 'error' });
     } finally {
       setLoading(false);
     }

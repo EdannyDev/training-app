@@ -58,7 +58,14 @@ const TrainingTable = () => {
       setTrainings(trainingsArray);
       setFilteredTrainings(trainingsArray);
     } catch (error) {
-      setNotification({ type: 'error', message: 'Error al cargar las capacitaciones' });
+    if (error.response && error.response.status === 401) {
+      setNotification({
+        type: 'warning',
+        message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+      });
+      } else {
+        setNotification({ type: 'error', message: 'Error al cargar las capacitaciones' });
+      }
     } finally {
       setLoading(false);
     }
@@ -116,29 +123,44 @@ const TrainingTable = () => {
   };
 
   const handleDelete = async () => {
-    setLoading(true);
+    const token = localStorage.getItem('token');
+      if (!token) {
+      setNotification({
+        type: 'warning',
+        message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+      });
+      return;
+    }
     try {
+      setLoading(true);
       await axios.delete(`https://backend-training-u5az.onrender.com/api/training/${selectedTraining._id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });  
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const updatedTrainings = trainings.filter(t => t._id !== selectedTraining._id);
       setTrainings(updatedTrainings);
       setFilteredTrainings(updatedTrainings);
-      setModalOpen(false);  
+      setModalOpen(false);
       const totalPages = Math.ceil(updatedTrainings.length / 5);
       const lastPageWithData = totalPages > 0 ? totalPages : 1;
       if ((currentPage - 1) * 5 >= updatedTrainings.length) {
         const newPage = Math.max(currentPage - 1, 1);
         setCurrentPage(newPage);
-      }  
-      setNotification({ type: 'success', message: 'Capacitación eliminada exitosamente' });  
-      await fetchTrainings();
+      }
+      setNotification({ type: 'success', message: 'Capacitación eliminada exitosamente' });
     } catch (error) {
-      setNotification({ type: 'error', message: 'Error al eliminar la capacitación' });
+      if (error.response && error.response.status === 401) {
+        setNotification({
+          type: 'warning',
+          message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'
+        });
+      } else {
+        setNotification({ type: 'error', message: 'Error al eliminar la capacitación' });
+      }
+      setModalOpen(false);
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   const currentTrainings = filteredTrainings.slice((currentPage - 1) * 5, currentPage * 5);
   const totalPages = Math.ceil(filteredTrainings.length / 5);

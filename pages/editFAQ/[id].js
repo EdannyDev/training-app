@@ -24,8 +24,9 @@ const EditFAQ = () => {
   const [answer, setAnswer] = useState('');
   const [roles, setRoles] = useState([]);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [tokenExpired, setTokenExpired] = useState(false);
+  const router = useRouter();
   const { id } = router.query;
 
   useEffect(() => {
@@ -41,7 +42,20 @@ const EditFAQ = () => {
           setAnswer(data.answer);
           setRoles(data.roles);
         } catch (error) {
-          setNotification({ show: true, message: 'Error al cargar el FAQ. Intenta nuevamente.', type: 'error' });
+          if (error.response && error.response.status === 401) {
+            setTokenExpired(true);
+            setNotification({
+              show: true,
+              message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+              type: 'warning',
+            });
+          } else {
+            setNotification({
+              show: true,
+              message: 'Error al cargar el FAQ. Intenta nuevamente.',
+              type: 'error',
+            });
+          }
         } finally {
           setLoading(false);
         }
@@ -73,11 +87,25 @@ const EditFAQ = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (tokenExpired) {
+      setNotification({
+        show: true,
+        message: 'Token inválido o expirado.',
+        type: 'error',
+      });
+      return;
+    }
+
     const isQuestionValid = validateField(question, 5, 100, 'La pregunta');
     const isAnswerValid = validateField(answer, 10, 500, 'La respuesta');
     const areRolesValid = validateRoles();
 
     if (!(isQuestionValid && isAnswerValid && areRolesValid)) return;
+
+    if (!faq) {
+      setNotification({ show: true, message: 'No se pudo cargar la FAQ. Intenta nuevamente.', type: 'error' });
+      return;
+    }
 
     const updatedData = { question, answer, roles };
     const hasChanges = question !== faq.question || answer !== faq.answer || JSON.stringify(roles) !== JSON.stringify(faq.roles);

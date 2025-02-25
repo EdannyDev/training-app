@@ -44,18 +44,30 @@ const UserManagement = () => {
       setLoading(true);
       try {
         const response = await axios.get('https://backend-training-u5az.onrender.com/api/users/list', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setUsers(response.data);
       } catch (error) {
-        setNotification({ show: true, message: 'Error al cargar usuarios', type: 'error' });
+        if (error.response && error.response.status === 401) {
+          setNotification({
+            show: true,
+            message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+            type: 'warning',
+          });
+        } else {
+          setNotification({
+            show: true,
+            message: 'Error al cargar usuarios',
+            type: 'error',
+          });
+        }
       } finally {
         setLoading(false);
-      }  
+      }
     };
-
+  
     fetchUsers();
-  }, []);
+  }, []);  
 
   const handleSearch = (e) => {
     let query = e.target.value;
@@ -102,10 +114,21 @@ const UserManagement = () => {
   };
 
   const handleDelete = () => {
+    const token = localStorage.getItem('token');  
+    if (!token) {
+      setNotification({
+        show: true,
+        message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+        type: 'warning',
+      });
+      setModalOpen(false);
+      return;
+    }
+  
     setLoading(true);
     axios
       .delete(`https://backend-training-u5az.onrender.com/api/users/delete/${userToDelete}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}`},
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {
         const updatedUsers = users.filter((user) => user._id !== userToDelete);
@@ -117,15 +140,27 @@ const UserManagement = () => {
         }
         setNotification({ show: true, message: 'Usuario eliminado exitosamente', type: 'success' });
       })
-      .catch(() =>
-        setNotification({ show: true, message: 'Error al eliminar el usuario', type: 'error' })
-      )
+      .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          setNotification({
+            show: true,
+            message: 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+            type: 'warning',
+          });
+        } else {
+          setNotification({
+            show: true,
+            message: 'Error al eliminar el usuario',
+            type: 'error',
+          });
+        }
+      })
       .finally(() => {
         setModalOpen(false);
         setLoading(false);
         setUserToDelete(null);
       });
-  };
+  };  
 
   const handleEdit = (userId) => router.push(`/editUser/${userId}`);
 

@@ -24,7 +24,12 @@ const AddFAQ = () => {
   const [answer, setAnswer] = useState('');
   const [roles, setRoles] = useState([]);
   const [notification, setNotification] = useState({ message: '', type: '' });
+  const [tokenExpired, setTokenExpired] = useState(false);
   const router = useRouter();
+
+  const getToken = () => {
+    return localStorage.getItem('token');
+  };
 
   const handleRoleChange = (e) => {
     const value = e.target.value;
@@ -66,6 +71,11 @@ const AddFAQ = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (tokenExpired) {
+      setNotification({ message: 'Token inválido o expirado.', type: 'error' });
+      return;
+    }
+
     const isQuestionValid = validateQuestion(question);
     const isAnswerValid = validateAnswer(answer);
     const areRolesValid = validateRoles();
@@ -78,17 +88,22 @@ const AddFAQ = () => {
       const response = await axios.post(
         'https://backend-training-u5az.onrender.com/api/faqs',
         { question, answer, roles },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}`} }
+        { headers: { Authorization: `Bearer ${getToken()}` } }
       );
       setNotification({ message: response.data.message, type: 'success' });
       setTimeout(() => {
         router.push('/faqs');
       }, 3000);
     } catch (error) {
-      const errorMessage = error.response?.data?.error === 'Ya existe un FAQ con la misma pregunta y roles'
-        ? 'Ya existe un FAQ con la misma pregunta y roles'
-        : 'No se pudo crear el FAQ';
-      setNotification({ message: errorMessage, type: 'error' });
+      if (error.response && error.response.status === 401) {
+        setTokenExpired(true);
+        setNotification({ message: 'Token inválido o expirado.', type: 'error' });
+      } else {
+        const errorMessage = error.response?.data?.error === 'Ya existe un FAQ con la misma pregunta y roles'
+          ? 'Ya existe un FAQ con la misma pregunta y roles'
+          : 'No se pudo crear el FAQ';
+        setNotification({ message: errorMessage, type: 'error' });
+      }
     }
   };
 

@@ -28,6 +28,7 @@ const EditUser = () => {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationType, setNotificationType] = useState('success');
   const [loading, setLoading] = useState(true);
+  const [tokenExpired, setTokenExpired] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
@@ -47,11 +48,18 @@ const EditUser = () => {
         setEmail(response.data.email);
         setRole(response.data.role);
       })
-      .catch(() => {
-        setNotificationMessage('No se pudo cargar el usuario');
-        setNotificationType('error');
-        setShowNotification(true);
-      })
+      .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          setTokenExpired(true);
+          setNotificationMessage('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+          setNotificationType('warning');
+          setShowNotification(true);
+        } else {
+          setNotificationMessage('No se pudo cargar el usuario');
+          setNotificationType('error');
+          setShowNotification(true);
+        }
+      })      
       .finally(() => setLoading(false));
     }
   }, [id]);
@@ -94,6 +102,13 @@ const EditUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (tokenExpired) {
+      setNotificationMessage('Token inválido o expirado.');
+      setNotificationType('error');
+      setShowNotification(true);
+      return;
+    }
 
     const isNameValid = validateName(name);
     const isEmailValid = validateEmail(email);

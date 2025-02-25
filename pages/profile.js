@@ -26,18 +26,23 @@ const Profile = () => {
         const { data } = await axios.get('https://backend-training-u5az.onrender.com/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
+  
         setUser({ ...data, newPassword: '' });
         setOriginalData({ ...data, password: '' });
         setUserRole(data.role);
-      } catch {
-        showNotification('Error al cargar el perfil', 'error');
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          showNotification('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'warning');
+        } else {
+          showNotification('Error al cargar el perfil', 'error');
+        }
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchProfile();
-  }, []);
+  }, []);  
 
   const handleChange = (e) => setUser({ ...user, [e.target.name]: e.target.value });
 
@@ -114,22 +119,33 @@ const Profile = () => {
   };
 
   const handleDeleteAccount = async () => {
-    setIsModalOpen(false);
-    showNotification('Cuenta eliminada exitosamente.', 'success');
-
-    setTimeout(async () => {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete('https://backend-training-u5az.onrender.com/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        localStorage.removeItem('token');
-        router.push('/login');
-      } catch {
-        showNotification('Error al eliminar la cuenta', 'error');
-      }
-    }, 3000);
-  };
+    const token = localStorage.getItem('token');
+        if (!token) {
+      showNotification('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'warning');
+      return;
+    }
+    try {
+      const response = await axios.get('https://backend-training-u5az.onrender.com/api/users/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setIsModalOpen(false);
+      showNotification('Cuenta eliminada exitosamente.', 'success');
+      setTimeout(async () => {
+        try {
+          await axios.delete('https://backend-training-u5az.onrender.com/api/users/profile', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          localStorage.removeItem('token');
+          router.push('/login');
+        } catch (error) {
+          showNotification('Error al eliminar la cuenta', 'error');
+        }
+      }, 3000);
+    } catch (error) {
+      setIsModalOpen(false);
+      showNotification('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'warning');
+    }
+  };  
 
   return (
     <>

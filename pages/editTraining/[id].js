@@ -58,7 +58,7 @@ const EditTraining = () => {
         const response = await axios.get(`https://backend-training-u5az.onrender.com/api/training/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+  
         const { title, description, roles, section, module, submodule, document, video } = response.data;
         setFormData({
           title,
@@ -72,7 +72,7 @@ const EditTraining = () => {
           documentName: document?.originalFileName || '',
           videoName: video?.originalFileName || ''
         });
-
+  
         setInitialData({
           title,
           description,
@@ -85,18 +85,24 @@ const EditTraining = () => {
           documentName: document?.originalFileName || '',
           videoName: video?.originalFileName || ''
         });
-
+  
         setPreviewDocument(document?.fileUrl || '');
         setPreviewVideo(video?.fileUrl || '');
       } catch (err) {
-        handleNotification('Error al cargar los datos del material', 'error');
+        if (err.response && err.response.status === 401) {
+          setNotificationMessage('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+          setNotificationType('warning');
+          setShowNotification(true);
+        } else {
+          handleNotification('Error al cargar los datos del material', 'error');
+        }
       } finally {
         setLoading(false);
       }    
     };
-
+  
     if (id) fetchTraining();
-  }, [id]);
+  }, [id]);  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
