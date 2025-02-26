@@ -17,8 +17,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faClipboardQuestion } from '@fortawesome/free-solid-svg-icons';
 
-const rolesOptions = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
-
 const AddFAQ = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
@@ -26,6 +24,7 @@ const AddFAQ = () => {
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [tokenExpired, setTokenExpired] = useState(false);
   const router = useRouter();
+  const rolesOptions = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
 
   const getToken = () => {
     return localStorage.getItem('token');
