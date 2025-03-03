@@ -162,7 +162,7 @@ const AddTraining = () => {
     const data = { ...formData };
 
     try {
-      await axios.post('https://backend-training-u5az.onrender.com/api/training', data, {
+      await axios.post('http://localhost:5000/api/training', data, {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
 

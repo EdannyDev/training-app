@@ -43,7 +43,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('https://backend-training-u5az.onrender.com/api/users/list', {
+        const response = await axios.get('http://localhost:5000/api/users/list', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setUsers(response.data);
@@ -127,7 +127,7 @@ const UserManagement = () => {
   
     setLoading(true);
     axios
-      .delete(`https://backend-training-u5az.onrender.com/api/users/delete/${userToDelete}`, {
+      .delete(`http://localhost:5000/api/users/delete/${userToDelete}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(() => {

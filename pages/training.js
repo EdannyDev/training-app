@@ -45,7 +45,7 @@ const CapacitationPage = () => {
           return;
         }
 
-        const response = await axios.get('https://backend-training-u5az.onrender.com/api/training', {
+        const response = await axios.get('http://localhost:5000/api/training', {
           headers: { Authorization: `Bearer ${token}` },
         });
 

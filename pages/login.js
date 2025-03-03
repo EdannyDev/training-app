@@ -52,7 +52,7 @@ const Login = () => {
     if (notification && notification.type === "error") return;
 
     try {
-      const { data } = await axios.post('https://backend-training-u5az.onrender.com/api/users/login', { email, password });
+      const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password });
       const { token, role } = data;
 
       localStorage.setItem('token', token);

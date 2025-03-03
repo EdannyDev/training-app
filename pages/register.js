@@ -73,7 +73,7 @@ const Register = () => {
     if (notification && notification.type === "error") return;
 
     try {
-      const response = await axios.post('https://backend-training-u5az.onrender.com/api/users/register', { name, email, password });
+      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password });
       if (response.status === 201) {
         setNotification({ message: 'Registro exitoso. Por favor, Inicia Sesión.', type: 'success' });
         setTimeout(() => {

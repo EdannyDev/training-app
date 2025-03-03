@@ -47,7 +47,7 @@ const TrainingTable = () => {
   const fetchTrainings = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('https://backend-training-u5az.onrender.com/api/training', {
+      const { data } = await axios.get('http://localhost:5000/api/training', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
 
@@ -133,7 +133,7 @@ const TrainingTable = () => {
     }
     try {
       setLoading(true);
-      await axios.delete(`https://backend-training-u5az.onrender.com/api/training/${selectedTraining._id}`, {
+      await axios.delete(`http://localhost:5000/api/training/${selectedTraining._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const updatedTrainings = trainings.filter(t => t._id !== selectedTraining._id);
