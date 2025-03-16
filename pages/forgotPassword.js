@@ -67,7 +67,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/forgot-password', { email });
+      const response = await axios.post('https://backend-training-231g.onrender.com/api/users/forgot-password', { email });
       setResetToken(response.data.resetToken);
       setNotification({ message: 'Token generado correctamente', type: 'success' });
       setShowModal(true);
@@ -94,7 +94,7 @@ const ForgotPassword = () => {
     }
   
     try {
-      await axios.post('http://localhost:5000/api/users/reset-password', { token: resetToken, newPassword });
+      await axios.post('https://backend-training-231g.onrender.com/api/users/reset-password', { token: resetToken, newPassword });
       setShowModal(false);
       setEmail('');
       setNewPassword('');

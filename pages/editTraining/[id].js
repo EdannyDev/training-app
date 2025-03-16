@@ -55,7 +55,7 @@ const EditTraining = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/trainings/${id}`, {
+        const response = await axios.get(`https://backend-training-231g.onrender.com/api/trainings/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -280,7 +280,7 @@ const EditTraining = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/trainings/${id}`, updatedData, {
+      await axios.put(`https://backend-training-231g.onrender.com/api/trainings/${id}`, updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
