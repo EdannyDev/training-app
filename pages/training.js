@@ -79,7 +79,7 @@ const CapacitationPage = () => {
           return;
         }
   
-        const response = await axios.get('https://backend-training-231g.onrender.com/api/trainings', {
+        const response = await axios.get('http://localhost:5000/api/trainings', {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -99,7 +99,7 @@ const CapacitationPage = () => {
         const userId = localStorage.getItem('userId');
         if (!userId) return;
   
-        const progressResponse = await axios.get(`https://backend-training-231g.onrender.com/api/progress/view/${userId}`, {
+        const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -152,7 +152,7 @@ const CapacitationPage = () => {
                 return;
             }
             const progressResponse = await axios.get(
-                `https://backend-training-231g.onrender.com/api/progress/completed/${userId}`,
+                `http://localhost:5000/api/progress/completed/${userId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -173,7 +173,7 @@ const CapacitationPage = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const evaluationResponse = await axios.get("https://backend-training-231g.onrender.com/api/evaluations/status", {
+        const evaluationResponse = await axios.get("http://localhost:5000/api/evaluations/status", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEvaluationPassed(evaluationResponse.data.status === "aprobado");
@@ -268,7 +268,7 @@ const CapacitationPage = () => {
         await startTraining(training._id, type);
       }
   
-      const progressResponse = await axios.get(`https://backend-training-231g.onrender.com/api/progress/view/${userId}`, {
+      const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -317,7 +317,7 @@ const CapacitationPage = () => {
       const token = localStorage.getItem('token');
       if (!token) return setError('No se encuentra el token de autenticación');
 
-      await axios.post('https://backend-training-231g.onrender.com/api/progress/start', { trainingId, type }, {
+      await axios.post('http://localhost:5000/api/progress/start', { trainingId, type }, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
@@ -336,7 +336,7 @@ const CapacitationPage = () => {
       const token = localStorage.getItem('token');
       if (!token) return setError('No se encuentra el token de autenticación.');
   
-      const response = await axios.post('https://backend-training-231g.onrender.com/api/progress/progress', {
+      const response = await axios.post('http://localhost:5000/api/progress/progress', {
         trainingId,
         progress: newProgress,
       }, {
@@ -377,7 +377,7 @@ const CapacitationPage = () => {
       }
   
       const response = await axios.post(
-        "https://backend-training-231g.onrender.com/api/evaluations/retry",
+        "http://localhost:5000/api/evaluations/retry",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -492,56 +492,52 @@ const CapacitationPage = () => {
           )}
   
           {!noMaterialsError && !loading && Object.keys(filteredMaterials).length > 0 ? (
-            Object.keys(filteredMaterials).map((section) => (
-              <div key={section}>
-                <SectionTitle><FontAwesomeIcon icon={faLayerGroup} /> Sección: {section}</SectionTitle>
-                {Object.keys(filteredMaterials[section]).map((module) => (
-                  <div key={module}>
-                    <ModuleContainer>
-                      <ModuleTitle><FontAwesomeIcon icon={faListUl} /> Módulo: {module || 'Sin módulo'}</ModuleTitle>
-                      {filteredMaterials[section][module].length > 0 ? (
-                        filteredMaterials[section][module].map((material) => (
-                          <MaterialContainer key={material._id}>
-                            <MaterialTitle>Título: {material.title}</MaterialTitle>
-                            <MaterialDescription>Descripción: {material.description}</MaterialDescription>
-                            <MaterialRoles>Roles asignados: {material.roles?.join(', ') || 'No asignados'}</MaterialRoles>
-                            {material.submodule ? (
-                              <SubmoduleTitle><FontAwesomeIcon icon={faListOl} /> Submódulo: {material.submodule}</SubmoduleTitle>
-                            ) : (
-                              <NoSubmoduleText>Sin submódulo</NoSubmoduleText>
+          Object.keys(filteredMaterials).map((section) => (
+            <div key={section}>
+              <SectionTitle><FontAwesomeIcon icon={faLayerGroup} /> Sección: {section}</SectionTitle>
+              {Object.keys(filteredMaterials[section]).map((module) => (
+                <div key={module}>
+                  <ModuleContainer>
+                    <ModuleTitle><FontAwesomeIcon icon={faListUl} /> Módulo: {module || 'Sin módulo'}</ModuleTitle>
+                    {filteredMaterials[section][module].length > 0 &&
+                      filteredMaterials[section][module].map((material) => (
+                        <MaterialContainer key={material._id}>
+                          <MaterialTitle>Título: {material.title}</MaterialTitle>
+                          <MaterialDescription>Descripción: {material.description}</MaterialDescription>
+                          <MaterialRoles>Roles asignados: {material.roles?.join(', ') || 'No asignados'}</MaterialRoles>
+                          {material.submodule ? (
+                            <SubmoduleTitle><FontAwesomeIcon icon={faListOl} /> Submódulo: {material.submodule}</SubmoduleTitle>
+                          ) : (
+                            <NoSubmoduleText>Sin submódulo</NoSubmoduleText>
+                          )}
+                          <div>
+                            {material.document?.fileUrl && (
+                              <DocumentButton onClick={() => openModal(material)}>
+                                <FontAwesomeIcon icon={faFileLines} style={{ marginRight: '8px' }} /> Documento
+                              </DocumentButton>
                             )}
-                            <div>
-                              {material.document?.fileUrl && (
-                                <DocumentButton onClick={() => openModal(material)}>
-                                  <FontAwesomeIcon icon={faFileLines} style={{ marginRight: '8px' }} /> Documento
-                                </DocumentButton>
-                              )}
-                              {material.video?.fileUrl && material.document?.fileUrl && (
-                                <span style={{ margin: '0 6px 0 6px', fontSize: '29px' }}>|</span>
-                              )}
-                              {material.video?.fileUrl && (
-                                <VideoButton onClick={() => openModal(material)}>
-                                  <FontAwesomeIcon icon={faVideo} style={{ marginRight: '8px' }} /> Video
-                                </VideoButton>
-                              )}
-                            </div>
-                            {role !== "admin" && (
+                            {material.video?.fileUrl && material.document?.fileUrl && (
+                              <span style={{ margin: '0 6px 0 6px', fontSize: '29px' }}>|</span>
+                            )}
+                            {material.video?.fileUrl && (
+                              <VideoButton onClick={() => openModal(material)}>
+                                <FontAwesomeIcon icon={faVideo} style={{ marginRight: '8px' }} /> Video
+                              </VideoButton>
+                            )}
+                          </div>
+                          {role !== "admin" && (
                             <ProgressBar progress={progressData[material._id] || 0} />
-                            )}
-                          </MaterialContainer>
-                        ))
-                      ) : (
-                        <p>Este módulo no contiene materiales disponibles.</p>
-                      )}
-                    </ModuleContainer>
-                    <SectionDivider />
-                  </div>
-                ))}
-              </div>
-            ))
-          ) : (
-            <p>No hay materiales disponibles para mostrar.</p>
-          )}
+                          )}
+                        </MaterialContainer>
+                      ))
+                    }
+                  </ModuleContainer>
+                  <SectionDivider />
+                </div>
+              ))}
+            </div>
+          ))
+        ) : null}
           {allCompleted && !evaluationPassed && !evaluationFailed && (
             <ButtonTest onClick={goToEvaluation}>
               <FontAwesomeIcon icon={faClipboard} /> 
