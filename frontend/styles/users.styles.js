@@ -188,16 +188,16 @@ export const SearchIcon = styled.div`
 export const UserManagementTitle = styled.h2`
   text-align: center;
   font-size: 35px;
-  margin: 20px 0;
+  margin: 0;
   color: #333;
 
   @media (max-width: 768px) {
     font-size: 28px;
-    margin: 35px 0;
+    margin: 15px 0;
   }
 
   @media (max-width: 480px) {
-    font-size: 24px;
+    font-size: 10px;
   }
 `;
 

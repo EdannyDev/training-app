@@ -14,7 +14,7 @@ function MyApp({ Component, pageProps }) {
     }
   }, [router]);
 
-  const showNavbar = !publicRoutes.includes(router.pathname);
+  const showNavbar = !publicRoutes.includes(router.pathname) && router.pathname !== '/evaluation';
 
   return (
     <>

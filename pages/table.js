@@ -47,7 +47,7 @@ const TrainingTable = () => {
   const fetchTrainings = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/training', {
+      const { data } = await axios.get('http://localhost:5000/api/trainings', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
 
@@ -133,7 +133,7 @@ const TrainingTable = () => {
     }
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/api/training/${selectedTraining._id}`, {
+      await axios.delete(`http://localhost:5000/api/trainings/${selectedTraining._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const updatedTrainings = trainings.filter(t => t._id !== selectedTraining._id);
@@ -212,12 +212,12 @@ const TrainingTable = () => {
         <TableBody>
           {currentTrainings.map((training, index) => (
             <TableRow key={training._id} className={index % 2 === 0 ? 'striped' : ''}>
-              <TableCell>{truncateText(training.title, 20)}</TableCell>
+              <TableCell>{truncateText(training.title, 30)}</TableCell>
               <TableCell>{truncateText(training.description, 30)}</TableCell>
               <TableCell className="center">
                 {training.document && training.video ? 'Documento y Video' : training.document ? 'Documento' : 'Video'}
               </TableCell>
-              <TableCell className="center">{truncateText(training.roles.join(', '), 20)}</TableCell>
+              <TableCell className="center">{truncateText(training.roles.join(', '), 30)}</TableCell>
               <TableCell className="center">{truncateText(training.section, 30, 'Sección no disponible')}</TableCell>
               <TableCell className="center">{truncateText(training.module, 30, 'Módulo no disponible')}</TableCell>
               <TableCell className="center">{truncateText(training.submodule, 30, 'Submódulo no disponible')}</TableCell>

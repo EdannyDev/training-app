@@ -53,10 +53,11 @@ const Login = () => {
 
     try {
       const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password });
-      const { token, role } = data;
+      const { token, role, userId } = data;
 
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
+      localStorage.setItem('userId', userId);
 
       setNotification({ message: 'Inicio de sesión exitoso', type: 'success' });
 

@@ -230,7 +230,7 @@ export const FileLink = styled.a`
 export const Title = styled.h2`
   text-align: center;
   font-size: 35px;
-  margin: 20px 0;
+  margin: 0;
   color: #333;
 
   @media (max-width: 768px) {

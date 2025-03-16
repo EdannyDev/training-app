@@ -27,3 +27,8 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}

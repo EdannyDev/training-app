@@ -1,6 +1,28 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
+const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+`;
+
+const fadeOut = keyframes`
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+`;
+
 const dropDown = keyframes`
   0% {
     opacity: 0;
@@ -12,6 +34,26 @@ const dropDown = keyframes`
   }
   100% {
     transform: translateY(0);
+  }
+`;
+
+const backdropBlur = keyframes`
+  0% {
+    backdrop-filter: blur(0px);
+  }
+  100% {
+    backdrop-filter: blur(5px);
+  }
+`;
+
+const fadeInScale = keyframes`
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
   }
 `;
 
@@ -104,7 +146,7 @@ export const IconWrapper = styled.div`
 export const SectionTitle = styled.h2`
   font-size: 24px;
   font-weight: bold;
-  color: #292929;
+  color: #2874a6;
   margin-bottom: 16px;
   word-wrap: break-word;
   overflow: hidden;
@@ -138,7 +180,6 @@ export const SectionDivider = styled.div`
 export const ModuleContainer = styled.div`
   margin-bottom: 16px;
   padding: 12px;
-  border: 1px solid #f8f8f8;
   border-radius: 6px;
   background-color: #c9c9c9;
   word-wrap: break-word;
@@ -156,8 +197,9 @@ export const ModuleContainer = styled.div`
 export const ModuleTitle = styled.h3`
   font-size: 18px;
   font-weight: bold;
-  color: #292929;
-  margin-bottom: 12px;
+  color: #2E2E2E;
+  margin-top: 5px;
+  margin-bottom: 10px;
   word-wrap: break-word;
   overflow: hidden;
   animation: ${dropDown} 1s ease-out;
@@ -192,7 +234,7 @@ export const NoSubmoduleText = styled.p`
 export const SubmoduleTitle = styled.h4`
   font-size: 16px;
   font-weight: 500;
-  color: #1e1e1e;
+  color: #f98400;
   margin-bottom: 8px;
   word-wrap: break-word;
   overflow: hidden;
@@ -209,10 +251,9 @@ export const SubmoduleTitle = styled.h4`
 
 export const MaterialContainer = styled.div`
   padding: 12px;
-  border: 1px solid #dcdcdc;
   border-radius: 5px;
   background-color: #fefefe;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   word-wrap: break-word;
   overflow: hidden;
 
@@ -281,26 +322,154 @@ export const MaterialRoles = styled.p`
   }
 `;
 
-export const ButtonLink = styled.a`
-  display: inline-block;
-  font-size: 14px;
-  color: #0070f3;
-  text-decoration: none;
-  margin-right: 8px;
-  word-wrap: break-word;
-  overflow: hidden;
-  animation: ${dropDown} 1.5s ease-out;
+export const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: ${backdropBlur} 0.5s ease-out forwards;
+`;
 
-  &:hover {
-    text-decoration: underline;
-  }
+export const ModalContainer = styled.div`
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 50%;
+  max-height: 90vh;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: ${fadeInScale} 0.4s ease-out;
 
   @media (max-width: 768px) {
-    font-size: 3vw;
+    width: 80%;
   }
 
   @media (max-width: 480px) {
-    font-size: 4vw;
+    width: 100%;
+  }
+`;
+
+export const ModalTitle = styled.h2`
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  word-wrap: break-word;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+`;
+
+export const ModalContent = styled.div`
+  width: 100%;
+  max-height: 100vh;
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+  }
+
+  video {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    background-color: transparent;
+    border-radius: 5px;
+  }
+`;
+
+export const ModalCloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  font-size: 24px;
+
+  &:hover {
+    color: #555;
+  }
+`;
+
+export const DocumentButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  background-color: #0070f3;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #005bb5;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  svg {
+    margin-right: 8px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 10px;
+  }
+`;
+
+export const VideoButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  background-color: #f39c12;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #e67e22;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  svg {
+    margin-right: 8px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 10px;
   }
 `;
 
@@ -355,5 +524,135 @@ export const WarningBadge = styled.div`
   @media (max-width: 480px) {
     font-size: 13px;
     padding: 6px;
+  }
+`;
+
+export const ButtonTest = styled.button`
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+
+  &:hover {
+    background: #218838;
+  }
+
+  @media (max-width: 768px) {
+    width: 80%;
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 90%;
+    font-size: 18px;
+  }
+`;
+
+export const ButtonTestRetry = styled.button`
+  background: #ffa726;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+
+  &:hover {
+    background: #fb8c00;
+  }
+
+  @media (max-width: 768px) {
+    width: 80%;
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    width: 90%;
+    font-size: 18px;
+  }
+`;
+
+export const NotificationContainer = styled.div`
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background-color: ${({ type }) =>
+    type === 'success' ? '#4caf50' : type === 'error' ? '#dc3545' : '#ff9800'};
+  color: #fff;
+  padding: 16px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  animation: ${fadeIn} 0.3s ease-in-out, ${fadeOut} 0.3s ease-in-out 4s forwards;
+
+  @media (max-width: 768px) {
+    max-width: 400px;
+    width: 90%;
+    font-size: 14px;
+    padding: 12px 18px;
+    gap: 6px;
+  }
+
+  @media (max-width: 480px) {
+    max-width: 400px;
+    width: 90%;
+    font-size: 14px;
+    padding: 10px 15px;
+    gap: 5px;
+  }
+`;
+
+export const NotificationMessage = styled.p`
+  margin: 0;
+  font-size: 16px;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
+`;
+
+export const CloseButton = styled.button`
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+
+  &:hover {
+    color: #ddd;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
   }
 `;
