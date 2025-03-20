@@ -28,23 +28,9 @@ const Register = () => {
   const [showSecurityCodeTip, setShowSecurityCodeTip] = useState(false);
   const router = useRouter();
 
-  const validateName = (value) => {
-    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-    setName(value);
-    if (!value.trim()) return 'El nombre es obligatorio.';
-    if (!nameRegex.test(value)) return 'El nombre solo puede contener letras y espacios.';
-    return null;
-  };
-
   const handleRegister = async (e) => {
     e.preventDefault();
     setNotification(null);
-
-    const nameError = validateName(name);
-    if (nameError) {
-      setNotification({ message: nameError, type: 'error' });
-      return;
-    }
 
     try {
       const response = await axios.post('https://backend-training-nni3.onrender.com/api/users/register', { name, email, password, securityCode });
@@ -74,10 +60,11 @@ const Register = () => {
             type="text"
             placeholder="Nombre"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={(e) => {
-              const error = validateName(e.target.value);
-              if (error) setNotification({ message: error, type: 'error' });
+            onChange={(e) => {
+              const inputValue = e.target.value;
+              if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(inputValue)) {
+                setName(inputValue); 
+              }
             }}
             required
             minLength="3"
