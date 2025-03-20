@@ -26,6 +26,7 @@ const Register = () => {
   const [showEmailTip, setShowEmailTip] = useState(false);
   const [showPasswordTip, setShowPasswordTip] = useState(false);
   const [showSecurityCodeTip, setShowSecurityCodeTip] = useState(false);
+  const [nameError, setNameError] = useState('');
   const router = useRouter();
 
   const validateName = (value) => {
@@ -72,7 +73,7 @@ const Register = () => {
             type="text"
             placeholder="Nombre"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => validateName(e.target.value)}
             required
             minLength="3"
             maxLength="30"
