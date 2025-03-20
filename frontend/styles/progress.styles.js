@@ -159,12 +159,12 @@ export const TrainingBadge = styled.span`
   border-radius: 12px;
   font-size: 12px;
   font-weight: bold;
-  color: #fff;
   white-space: nowrap;
   text-align: center;
   min-width: 90px;
   background-color: ${({ status }) =>
     status === 'completado' ? '#28a745' : '#ffc107'};
+  color: ${({ status }) => (status === 'completado' ? '#fff' : '#000')};
 `;
 
 export const ProgressBadge = styled.span`
@@ -172,12 +172,12 @@ export const ProgressBadge = styled.span`
   border-radius: 12px;
   font-size: 12px;
   font-weight: bold;
-  color: #fff;
   white-space: nowrap;
   text-align: center;
   min-width: 50px;
   background-color: ${({ progress }) =>
     progress === 100 ? '#28a745' : '#ffc107'};
+  color: ${({ progress }) => (progress === 100 ? '#fff' : '#000')};
 `;
 
 export const Divider = styled.hr`
