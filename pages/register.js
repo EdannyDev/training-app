@@ -26,26 +26,25 @@ const Register = () => {
   const [showEmailTip, setShowEmailTip] = useState(false);
   const [showPasswordTip, setShowPasswordTip] = useState(false);
   const [showSecurityCodeTip, setShowSecurityCodeTip] = useState(false);
-  const [nameError, setNameError] = useState(null);
   const router = useRouter();
 
   const validateName = (value) => {
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-    if (value.trim() === '') {
-      setNameError({ message: 'El nombre es obligatorio.', type: 'error' });
-    } else if (!nameRegex.test(value)) {
-      setNameError({ message: 'El nombre solo puede contener letras y espacios.', type: 'error' });
-    } else {
-      setNameError(null);
-    }
     setName(value);
+    if (!value.trim()) return 'El nombre es obligatorio.';
+    if (!nameRegex.test(value)) return 'El nombre solo puede contener letras y espacios.';
+    return null;
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setNotification(null);
 
-    if (nameError) return;
+    const nameError = validateName(name);
+    if (nameError) {
+      setNotification({ message: nameError, type: 'error' });
+      return;
+    }
 
     try {
       const response = await axios.post('https://backend-training-nni3.onrender.com/api/users/register', { name, email, password, securityCode });
@@ -75,16 +74,14 @@ const Register = () => {
             type="text"
             placeholder="Nombre"
             value={name}
-            onChange={(e) => validateName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={(e) => {
+              const error = validateName(e.target.value);
+              if (error) setNotification({ message: error, type: 'error' });
+            }}
             required
             minLength="3"
             maxLength="30"
-            onFocus={() => setNameError(null)}
-            onBlur={() => {
-              if (name.trim() === '') {
-                setNameError({ message: 'El nombre es obligatorio.', type: 'error' });
-              }
-            }}
           />
         </div>
 
@@ -179,13 +176,6 @@ const Register = () => {
         <Notification type={notification.type}>
           <FontAwesomeIcon icon={notification.type === 'error' ? faExclamationCircle : faCheckCircle} />
           {notification.message}
-        </Notification>
-      )}
-
-      {nameError && (
-        <Notification type="error">
-          <FontAwesomeIcon icon={faExclamationCircle} />
-          {nameError.message}
         </Notification>
       )}
     </>
