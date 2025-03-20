@@ -65,7 +65,7 @@ const Welcome = () => {
       {popupClosed && (
         <ContentWrapper>
           <Header>
-            <h1>¡Bienvenido a la sección de capacitación!</h1>
+            <h1>¡Bienvenido al software de capacitación!</h1>
             <p>Capacitación integral para el uso correcto del ERP de DIMMMSA.</p>
           </Header>
           <MainContent>
