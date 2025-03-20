@@ -80,7 +80,7 @@ const Register = () => {
             minLength="3"
             maxLength="30"
           />
-          {nameError && <TipMessage style={{ color: 'red' }}>{nameError}</TipMessage>}
+          {nameError && <TipMessage style={{ color: 'red', fontWeight: 'bold' }}>{nameError}</TipMessage>}
         </div>
 
         <div style={{ position: 'relative' }}>
