@@ -28,12 +28,24 @@ const Register = () => {
   const [showSecurityCodeTip, setShowSecurityCodeTip] = useState(false);
   const router = useRouter();
 
+  const validateName = (value) => {
+    const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+    if (!nameRegex.test(value)) {
+      setNameError('El nombre solo puede contener letras y espacios.');
+    } else {
+      setNameError('');
+    }
+    setName(value);
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setNotification(null);
 
+    if (nameError) return;
+
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password, securityCode });
+      const response = await axios.post('https://backend-training-nni3.onrender.com/api/users/register', { name, email, password, securityCode });
 
       if (response.status === 201) {
         setNotification({ message: 'Registro exitoso. Por favor, Inicia Sesión.', type: 'success' });
@@ -65,6 +77,7 @@ const Register = () => {
             minLength="3"
             maxLength="30"
           />
+          {nameError && <TipMessage style={{ color: 'red' }}>{nameError}</TipMessage>}
         </div>
 
         <div style={{ position: 'relative' }}>

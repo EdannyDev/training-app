@@ -24,7 +24,7 @@ const Profile = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get('http://localhost:5000/api/users/profile', {
+        const { data } = await axios.get('https://backend-training-nni3.onrender.com/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -71,24 +71,6 @@ const Profile = () => {
     return true;
   };
 
-  const validatePassword = (value) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
-    if (!passwordRegex.test(value)) {
-      showNotification("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.", 'error');
-      return false;
-    }
-    return true;
-  };
-
-  const validateSecurityCode = (value) => {
-    const securityCodeRegex = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,20}$/;
-    if (!securityCodeRegex.test(value)) {
-      showNotification("El código debe tener entre 6 y 20 caracteres, al menos una letra y un número.", 'error');
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -123,7 +105,7 @@ const Profile = () => {
         newSecurityCode: user.newSecurityCode,
       };
   
-      const response = await axios.put('http://localhost:5000/api/users/profile', updatedData, {
+      const response = await axios.put('https://backend-training-nni3.onrender.com/api/users/profile', updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -158,14 +140,14 @@ const Profile = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/users/profile', {
+      const response = await axios.get('https://backend-training-nni3.onrender.com/api/users/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setIsModalOpen(false);
       showNotification('Cuenta eliminada exitosamente.', 'success');
       setTimeout(async () => {
         try {
-          await axios.delete('http://localhost:5000/api/users/profile', {
+          await axios.delete('https://backend-training-nni3.onrender.com/api/users/profile', {
             headers: { Authorization: `Bearer ${token}` },
           });
           localStorage.removeItem('token');

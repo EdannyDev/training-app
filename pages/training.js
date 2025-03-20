@@ -79,7 +79,7 @@ const CapacitationPage = () => {
           return;
         }
   
-        const response = await axios.get('http://localhost:5000/api/trainings', {
+        const response = await axios.get('https://backend-training-nni3.onrender.com/api/trainings', {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -99,7 +99,7 @@ const CapacitationPage = () => {
         const userId = localStorage.getItem('userId');
         if (!userId) return;
   
-        const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
+        const progressResponse = await axios.get(`https://backend-training-nni3.onrender.com/api/progress/view/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -152,7 +152,7 @@ const CapacitationPage = () => {
                 return;
             }
             const progressResponse = await axios.get(
-                `http://localhost:5000/api/progress/completed/${userId}`,
+                `https://backend-training-nni3.onrender.com/api/progress/completed/${userId}`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -173,7 +173,7 @@ const CapacitationPage = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const evaluationResponse = await axios.get("http://localhost:5000/api/evaluations/status", {
+        const evaluationResponse = await axios.get("https://backend-training-nni3.onrender.com/api/evaluations/status", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEvaluationPassed(evaluationResponse.data.status === "aprobado");
@@ -268,7 +268,7 @@ const CapacitationPage = () => {
         await startTraining(training._id, type);
       }
   
-      const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
+      const progressResponse = await axios.get(`https://backend-training-nni3.onrender.com/api/progress/view/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -317,7 +317,7 @@ const CapacitationPage = () => {
       const token = localStorage.getItem('token');
       if (!token) return setError('No se encuentra el token de autenticación');
 
-      await axios.post('http://localhost:5000/api/progress/start', { trainingId, type }, {
+      await axios.post('https://backend-training-nni3.onrender.com/api/progress/start', { trainingId, type }, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
@@ -336,7 +336,7 @@ const CapacitationPage = () => {
       const token = localStorage.getItem('token');
       if (!token) return setError('No se encuentra el token de autenticación.');
   
-      const response = await axios.post('http://localhost:5000/api/progress/progress', {
+      const response = await axios.post('https://backend-training-nni3.onrender.com/api/progress/progress', {
         trainingId,
         progress: newProgress,
       }, {
@@ -377,7 +377,7 @@ const CapacitationPage = () => {
       }
   
       const response = await axios.post(
-        "http://localhost:5000/api/evaluations/retry",
+        "https://backend-training-nni3.onrender.com/api/evaluations/retry",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
