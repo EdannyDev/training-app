@@ -31,13 +31,15 @@ const Register = () => {
 
   const validateName = (value) => {
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
-    if (!nameRegex.test(value)) {
+    if (value.trim() === '') {
+      setNameError('El nombre es obligatorio.');
+    } else if (!nameRegex.test(value)) {
       setNameError('El nombre solo puede contener letras y espacios.');
     } else {
       setNameError('');
     }
     setName(value);
-  };
+  };  
 
   const handleRegister = async (e) => {
     e.preventDefault();
