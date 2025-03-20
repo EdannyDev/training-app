@@ -39,7 +39,7 @@ const Register = () => {
       setNameError('');
     }
     setName(value);
-  };  
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -79,8 +79,14 @@ const Register = () => {
             required
             minLength="3"
             maxLength="30"
+            onFocus={() => setNameError('')}
+            onBlur={() => {
+              if (name.trim() === '') {
+                setNameError('El nombre es obligatorio.');
+              }
+            }}
           />
-          {nameError && <TipMessage style={{ color: 'red', fontWeight: 'bold' }}>{nameError}</TipMessage>}
+          {nameError && <TipMessage style={{ color: 'red' }}>{nameError}</TipMessage>}
         </div>
 
         <div style={{ position: 'relative' }}>
