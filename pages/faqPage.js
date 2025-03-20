@@ -8,6 +8,7 @@ import {
   FAQItem, 
   Question, 
   Answer,
+  Role,
   Divider, 
   ErrorBadge,
   WarningBadge, 
@@ -130,10 +131,11 @@ const FAQs = () => {
           )}
 
           <FAQList>
-            {filteredFaqs.map(({ _id, question, answer }, index) => (
+            {filteredFaqs.map(({ _id, question, answer, roles }, index) => (
               <FAQItem key={_id} delay={index * 0.1}>
                 <Question>{question}</Question>
                 <Answer>{answer}</Answer>
+                <Role>Disponible para: {roles.join(', ')}</Role>
                 <Divider />
               </FAQItem>
             ))}

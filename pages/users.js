@@ -14,12 +14,13 @@ import {
   SearchContainer,
   InputContainer,
   Input,
+  ProgressButton,
   SearchIcon,
   PaginationContainer,
   PaginationButton,
 } from '../frontend/styles/users.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faUserPen, faUserXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBarsProgress, faSearch, faUserPen, faUserXmark } from '@fortawesome/free-solid-svg-icons';
 import DeleteConfirmationModal from '../frontend/components/modalDelete';
 import Notification from '../frontend/components/notification';
 
@@ -183,6 +184,10 @@ const UserManagement = () => {
             <FontAwesomeIcon icon={faSearch} />
           </SearchIcon>
         </InputContainer>
+        <ProgressButton onClick={() => router.push('/progress')}>
+          <FontAwesomeIcon icon={faBarsProgress} />
+          &nbsp;Ver Progresos
+        </ProgressButton>
       </SearchContainer>
 
       {notification.show && (

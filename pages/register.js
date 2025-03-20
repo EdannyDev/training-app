@@ -13,16 +13,19 @@ import {
   TipMessage 
 } from '../frontend/styles/register.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faExclamationCircle, faCheckCircle, faUserShield } from '@fortawesome/free-solid-svg-icons';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [securityCode, setSecurityCode] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showSecurityCode, setShowSecurityCode] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showEmailTip, setShowEmailTip] = useState(false);
   const [showPasswordTip, setShowPasswordTip] = useState(false);
+  const [showSecurityCodeTip, setShowSecurityCodeTip] = useState(false);
   const router = useRouter();
 
   const validateName = (value) => {
@@ -54,6 +57,18 @@ const Register = () => {
     setEmail(value);
   };
 
+  const validateSecurityCode = (value) => {
+    const securityCodeRegex = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,20}$/;
+  
+    if (!securityCodeRegex.test(value)) {
+      setNotification({ message: "El código debe ser personal y seguro.", type: "error" });
+    } else {
+      setNotification(null);
+    }
+  
+    setSecurityCode(value);
+  };  
+
   const validatePassword = (value) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
 
@@ -73,7 +88,7 @@ const Register = () => {
     if (notification && notification.type === "error") return;
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password });
+      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password, securityCode });
       if (response.status === 201) {
         setNotification({ message: 'Registro exitoso. Por favor, Inicia Sesión.', type: 'success' });
         setTimeout(() => {
@@ -88,6 +103,10 @@ const Register = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(prevState => !prevState);
+  };
+
+  const toggleSecurityCodeVisibility = () => {
+    setShowSecurityCode(prevState => !prevState);
   };
 
   return (
@@ -132,7 +151,7 @@ const Register = () => {
           />
           {showEmailTip && (
             <TipMessage>
-              Tip: El email de acceso es tu mismo rol, por ejemplo: <b>@adviser.com</b> es para asesores.
+              Tip: El email de acceso es tu mismo nombre seguido de tu rol, por ejemplo: <b>example@adviser.com</b> es para asesores.
             </TipMessage>
           )}
         </div>
@@ -164,6 +183,37 @@ const Register = () => {
           {showPasswordTip && (
             <TipMessage>
               Tip: La contraseña debe tener al menos 8 caracteres, una <b>mayúscula</b>, una <b>minúscula</b>, un <b>número</b> y un <b>carácter especial (@$!%*?&)</b>.
+            </TipMessage>
+          )}
+        </div>
+
+        <div 
+          style={{ position: 'relative' }}
+          onFocus={() => setShowSecurityCodeTip(securityCode === '')}
+          onBlur={() => setShowSecurityCodeTip(false)}
+          onMouseEnter={() => setShowSecurityCodeTip(securityCode === '')}
+          onMouseLeave={() => setShowSecurityCodeTip(false)}
+        >
+          <IconWrapper>
+            <FontAwesomeIcon icon={faUserShield} />
+          </IconWrapper>
+          <Input
+            type={showSecurityCode ? 'text' : 'password'}
+            placeholder="Código de seguridad"
+            value={securityCode}
+            onChange={(e) => {
+              validateSecurityCode(e.target.value);
+              setShowSecurityCodeTip(e.target.value === '');
+            }}
+            required
+            maxLength="20"
+          />
+          <TogglePasswordButton type="button" onClick={toggleSecurityCodeVisibility}>
+            <FontAwesomeIcon icon={showSecurityCode ? faEye : faEyeSlash} />
+          </TogglePasswordButton>
+          {showSecurityCodeTip && (
+            <TipMessage>
+              Tip: El código de seguridad debe ser personal y recuerda <b>GUARDARLO</b> de manera segura.
             </TipMessage>
           )}
         </div>

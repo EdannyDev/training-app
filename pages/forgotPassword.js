@@ -20,10 +20,11 @@ import {
   LinkButton,
 } from '../frontend/styles/forgotPassword.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faKey, faCheckCircle, faExclamationCircle, faLock, faCheck, faTimes, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faKey, faCheckCircle, faExclamationCircle, faLock, faCheck, faTimes, faEye, faEyeSlash, faUserShield } from '@fortawesome/free-solid-svg-icons';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [securityCode, setSecurityCode] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [notification, setNotification] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +32,7 @@ const ForgotPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSecurityCode, setShowSecurityCode] = useState(false);
   const router = useRouter();
 
   const validateEmail = (value) => {
@@ -40,6 +42,15 @@ const ForgotPassword = () => {
       setNotification(null);
     }
     setEmail(value);
+  };
+
+  const validateSecurityCode = (value) => {
+    setSecurityCode(value);
+    if (value.length < 6 || value.length > 20) {
+      setNotification({ message: "El código de seguridad debe tener un mínimo 6 dígitos.", type: "error" });
+    } else {
+      setNotification(null);
+    }
   };
 
   const validatePassword = (value) => {
@@ -67,7 +78,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/forgot-password', { email });
+      const response = await axios.post('http://localhost:5000/api/users/forgot-password', { email, securityCode });
       setResetToken(response.data.resetToken);
       setNotification({ message: 'Token generado correctamente', type: 'success' });
       setShowModal(true);
@@ -97,6 +108,7 @@ const ForgotPassword = () => {
       await axios.post('http://localhost:5000/api/users/reset-password', { token: resetToken, newPassword });
       setShowModal(false);
       setEmail('');
+      setSecurityCode('');
       setNewPassword('');
       setConfirmPassword('');
       setNotification({ message: 'Contraseña restablecida exitosamente', type: 'success' });
@@ -113,6 +125,7 @@ const ForgotPassword = () => {
 
   const handleCancel = () => {
     setEmail('');
+    setSecurityCode('');
     setNewPassword('');
     setConfirmPassword('');
     setShowModal(false);
@@ -134,6 +147,22 @@ const ForgotPassword = () => {
             required
             maxLength="50"
           />
+        </InputWrapper>
+        <InputWrapper>
+          <IconWrapper>
+            <FontAwesomeIcon icon={faUserShield} />
+          </IconWrapper>
+          <Input
+            type={showSecurityCode ? 'text' : 'password'}
+            placeholder="Ingresa tu código de seguridad"
+            value={securityCode}
+            onChange={(e) => validateSecurityCode(e.target.value)}
+            required
+            maxLength="20"
+          />
+          <IconWrapperRight onClick={() => setShowSecurityCode(!showSecurityCode)}>
+            <FontAwesomeIcon icon={showSecurityCode ? faEye : faEyeSlash} />
+          </IconWrapperRight>
         </InputWrapper>
         <ButtonGenerateToken type="submit">
           <FontAwesomeIcon icon={faKey} />

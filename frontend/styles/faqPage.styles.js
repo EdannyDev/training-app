@@ -170,6 +170,21 @@ export const Answer = styled.p`
   }
 `;
 
+export const Role = styled.p`
+  font-size: 1.2rem;
+  font-style: italic;
+  color: #999;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+`;
+
 export const Divider = styled.hr`
   height: 1px;
   border: none;

@@ -3,17 +3,18 @@ import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faTrash, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { ProfileContainer, FormContainer, InputContainer, InputWrapper, Icon, ToggleIcon, Input, Description, Line, Button, ButtonContainer } from '../frontend/styles/profile.styles';
 import Notification from '../frontend/components/notification';
 import DeleteConfirmationModal from '../frontend/components/modalDelete';
 
 const Profile = () => {
-  const [user, setUser] = useState({ name: '', email: '', newPassword: '', role: '' });
+  const [user, setUser] = useState({ name: '', email: '', newPassword: '', newSecurityCode:'', role: '' });
   const [userRole, setUserRole] = useState('');
   const [originalData, setOriginalData] = useState({ name: '', email: '', role: '' });
   const [notification, setNotification] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showSecurityCode, setShowSecurityCode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
   
-        setUser({ ...data, newPassword: '' });
+        setUser({ ...data, newPassword: '', newSecurityCode: '' });
         setOriginalData({ ...data, password: '' });
         setUserRole(data.role);
       } catch (error) {
@@ -79,44 +80,76 @@ const Profile = () => {
     return true;
   };
 
+  const validateSecurityCode = (value) => {
+    const securityCodeRegex = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,20}$/;
+    if (!securityCodeRegex.test(value)) {
+      showNotification("El código debe tener entre 6 y 20 caracteres, al menos una letra y un número.", 'error');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const isNameValid = validateName(user.name);
-    const isEmailValid = validateEmail(user.email);
+  
+    const trimmedName = user.name.trim();
+    const trimmedEmail = user.email.trim();
+  
+    const isNameValid = validateName(trimmedName);
+    const isEmailValid = validateEmail(trimmedEmail);
     const isPasswordValid = user.newPassword ? validatePassword(user.newPassword) : true;
-
-    if (!isNameValid || !isEmailValid || !isPasswordValid) {
+    const isSecurityCodeValid = user.newSecurityCode ? validateSecurityCode(user.newSecurityCode) : true;
+  
+    if (!isNameValid || !isEmailValid || !isPasswordValid || !isSecurityCodeValid) {
       return;
     }
-
-    if (user.name === originalData.name && user.email === originalData.email && !user.newPassword) {
+  
+    if (
+      trimmedName === originalData.name.trim() &&
+      trimmedEmail === originalData.email.trim() &&
+      (!user.newPassword || user.newPassword === originalData.password) &&
+      (!user.newSecurityCode || user.newSecurityCode === originalData.securityCode)
+    ) {
       showNotification('No has modificado ningún dato. Realiza cambios para actualizar.', 'error');
       return;
     }
-
+  
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/users/profile', {
-        name: user.name, email: user.email, password: user.newPassword,
-      }, {
+      const updatedData = {
+        name: trimmedName,
+        email: trimmedEmail,
+        newPassword: user.newPassword,
+        newSecurityCode: user.newSecurityCode,
+      };
+  
+      const response = await axios.put('http://localhost:5000/api/users/profile', updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (user.newPassword) {
-        showNotification('Contraseña actualizada. Cerrando sesión...', 'success');
-        setTimeout(() => { 
-          localStorage.removeItem('token'); 
-          router.push('/login'); 
-        }, 2000);
-      } else {
-        showNotification('Perfil actualizado. Verifica los cambios.', 'success');
-        setOriginalData(user);
+  
+      if (response.data.message === 'Usuario actualizado correctamente') {
+        if (user.newPassword) {
+          showNotification('Contraseña actualizada. Cerrando sesión...', 'success');
+          setTimeout(() => {
+            localStorage.removeItem('token');
+            router.push('/login');
+          }, 2000);
+        } else {
+          showNotification('Perfil actualizado con éxito.', 'success');
+          setOriginalData({ name: trimmedName, email: trimmedEmail, role: user.role });
+          setUser((prevUser) => ({ ...prevUser, newPassword: '', newSecurityCode: '' }));
+          setShowSecurityCode(false);
+        }
       }
-    } catch {
-      showNotification('Error al actualizar el perfil', 'error');
+  
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        showNotification(error.response.data.error, 'error');
+      } else {
+        showNotification('Error al actualizar el perfil', 'error');
+      }
     }
-  };
+  };  
 
   const handleDeleteAccount = async () => {
     const token = localStorage.getItem('token');
@@ -214,6 +247,25 @@ const Profile = () => {
             </ToggleIcon>
           </InputWrapper>
           <Description>Usa una contraseña segura y fácil de recordar.</Description>
+        </InputContainer>
+        <Line />
+
+        <InputContainer>
+          <InputWrapper>
+            <Icon><FontAwesomeIcon icon={faUserShield} /></Icon>
+            <Input 
+              type={showSecurityCode ? 'text' : 'password'} 
+              name="newSecurityCode" 
+              placeholder="Nuevo código de seguridad" 
+              value={user.newSecurityCode} 
+              onChange={handleChange} 
+              maxLength="20" 
+            />
+            <ToggleIcon onClick={() => setShowSecurityCode(!showSecurityCode)}>
+              <FontAwesomeIcon icon={showSecurityCode ? faEye : faEyeSlash} />
+            </ToggleIcon>
+          </InputWrapper>
+          <Description>Usa un código de seguridad personal, seguro y <span style={{ color: '#e74c3c', fontWeight: 'bold' }}>RECUERDA</span> guardarlo.</Description>
         </InputContainer>
         <Line />
 

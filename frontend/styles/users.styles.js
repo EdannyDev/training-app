@@ -175,6 +175,36 @@ export const Input = styled.input`
   }
 `;
 
+export const ProgressButton = styled.button`
+  background-color: #007bff;
+  color: white;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: #0062cc;
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+`;
+
 export const SearchIcon = styled.div`
   position: absolute;
   right: 10px;
