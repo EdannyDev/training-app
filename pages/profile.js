@@ -178,7 +178,19 @@ const Profile = () => {
       setIsModalOpen(false);
       showNotification('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'warning');
     }
-  };  
+  };
+  
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+  
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [isModalOpen]); 
 
   return (
     <>

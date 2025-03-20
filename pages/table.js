@@ -162,6 +162,18 @@ const TrainingTable = () => {
     }
   };
 
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+  
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [modalOpen]); 
+
   const currentTrainings = filteredTrainings.slice((currentPage - 1) * 5, currentPage * 5);
   const totalPages = Math.ceil(filteredTrainings.length / 5);
 

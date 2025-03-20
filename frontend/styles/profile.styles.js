@@ -167,7 +167,7 @@ export const Button = styled.button`
     color: #fff;
 
     &:hover {
-      background-color: #ef9700 ;
+      background-color: #ef9700;
     }
 
     &:disabled {

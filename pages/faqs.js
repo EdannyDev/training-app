@@ -158,6 +158,18 @@ const FAQTable = () => {
     }
   };
 
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+  
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [modalOpen]);
+
   const handleAddFAQ = () => router.push('/addFAQ');
   const handleGoToTraining = () => router.push('/table');
 

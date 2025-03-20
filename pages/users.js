@@ -163,6 +163,18 @@ const UserManagement = () => {
       });
   };  
 
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+  
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, [modalOpen]);
+
   const handleEdit = (userId) => router.push(`/editUser/${userId}`);
 
   return (
