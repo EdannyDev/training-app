@@ -26,17 +26,17 @@ const Register = () => {
   const [showEmailTip, setShowEmailTip] = useState(false);
   const [showPasswordTip, setShowPasswordTip] = useState(false);
   const [showSecurityCodeTip, setShowSecurityCodeTip] = useState(false);
-  const [nameError, setNameError] = useState('');
+  const [nameError, setNameError] = useState(null);
   const router = useRouter();
 
   const validateName = (value) => {
     const nameRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
     if (value.trim() === '') {
-      setNameError('El nombre es obligatorio.');
+      setNameError({ message: 'El nombre es obligatorio.', type: 'error' });
     } else if (!nameRegex.test(value)) {
-      setNameError('El nombre solo puede contener letras y espacios.');
+      setNameError({ message: 'El nombre solo puede contener letras y espacios.', type: 'error' });
     } else {
-      setNameError('');
+      setNameError(null);
     }
     setName(value);
   };
@@ -79,14 +79,13 @@ const Register = () => {
             required
             minLength="3"
             maxLength="30"
-            onFocus={() => setNameError('')}
+            onFocus={() => setNameError(null)}
             onBlur={() => {
               if (name.trim() === '') {
-                setNameError('El nombre es obligatorio.');
+                setNameError({ message: 'El nombre es obligatorio.', type: 'error' });
               }
             }}
           />
-          {nameError && <TipMessage style={{ color: 'red' }}>{nameError}</TipMessage>}
         </div>
 
         <div style={{ position: 'relative' }}>
@@ -180,6 +179,13 @@ const Register = () => {
         <Notification type={notification.type}>
           <FontAwesomeIcon icon={notification.type === 'error' ? faExclamationCircle : faCheckCircle} />
           {notification.message}
+        </Notification>
+      )}
+
+      {nameError && (
+        <Notification type="error">
+          <FontAwesomeIcon icon={faExclamationCircle} />
+          {nameError.message}
         </Notification>
       )}
     </>
