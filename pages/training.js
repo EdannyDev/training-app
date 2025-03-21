@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
@@ -54,6 +54,7 @@ const CapacitationPage = () => {
   const router = useRouter();
   const [customNotification, setCustomNotification] = useState({ message: '', type: '' });
   const [retryCountDown, setRetryCountDown] = useState(null);
+  const documentRef = useRef(null);
 
   const showCustomNotification = (message, type) => {
     setCustomNotification({ message, type });
@@ -354,8 +355,22 @@ const CapacitationPage = () => {
         setError('Error al guardar el progreso.');
       }
     }
-  }; 
+  };
 
+  const startDocumentProgressTracking = (trainingId) => {
+    let elapsedTime = 0;
+    const interval = setInterval(() => {
+      elapsedTime += 10;
+      const progress = (elapsedTime / 300) * 100;
+      updateProgress(trainingId, Math.min(progress, 100));
+  
+      if (elapsedTime >= 300) {
+        updateProgress(trainingId, 100);
+        clearInterval(interval);
+      }
+    }, 10000);
+  };  
+  
   const handleVideoProgress = (event, trainingId) => {
   const video = event.target;
   const newProgress = (video.currentTime / video.duration) * 100;
@@ -423,6 +438,10 @@ const CapacitationPage = () => {
 
   const goToEvaluation = () => {
     router.push("/evaluation");
+  };
+
+  const getFileExtension = (url) => {
+    return url.split('.').pop();
   };
 
   return (
@@ -557,7 +576,9 @@ const CapacitationPage = () => {
       {isModalOpen && modalData && (
         <ModalOverlay>
           <ModalContainer onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>{modalData?.originalFileName || 'Material'}</ModalTitle>
+          <ModalTitle>
+            {modalData?.originalFileName ? `${modalData.originalFileName}.${getFileExtension(modalData.fileUrl)}` : 'Material'}
+          </ModalTitle>
             {role !== "admin" && (
             <ProgressBar progress={progressData[modalData.trainingId] || 0} />
             )}
@@ -566,9 +587,13 @@ const CapacitationPage = () => {
             {modalData?.fileUrl ? (
               modalData.fileUrl.endsWith('.pdf') ? (
                 <iframe
+                  ref={documentRef}
                   title="Material"
                   src={modalData.fileUrl}
-                  style={{ width: '100%', height: '70vh', border: 'none' }}
+                  style={{ width: "100%", height: "70vh", border: "none" }}
+                  onLoad={() => {
+                    startDocumentProgressTracking(modalData.trainingId);
+                  }}
                 />
               ) : modalData.fileUrl.endsWith('.mp4') ? (
                 <video
