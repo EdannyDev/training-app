@@ -33,7 +33,7 @@ const Register = () => {
     setNotification(null);
 
     try {
-      const response = await axios.post('https://backend-training-nni3.onrender.com/api/users/register', { name, email, password, securityCode });
+      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password, securityCode });
 
       if (response.status === 201) {
         setNotification({ message: 'Registro exitoso. Por favor, Inicia Sesión.', type: 'success' });

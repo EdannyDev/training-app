@@ -24,7 +24,7 @@ const Profile = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const { data } = await axios.get('https://backend-training-nni3.onrender.com/api/users/profile', {
+        const { data } = await axios.get('http://localhost:5000/api/users/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
   
@@ -105,7 +105,7 @@ const Profile = () => {
         newSecurityCode: user.newSecurityCode,
       };
   
-      const response = await axios.put('https://backend-training-nni3.onrender.com/api/users/profile', updatedData, {
+      const response = await axios.put('http://localhost:5000/api/users/profile', updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
   
@@ -140,14 +140,14 @@ const Profile = () => {
       return;
     }
     try {
-      const response = await axios.get('https://backend-training-nni3.onrender.com/api/users/profile', {
+      const response = await axios.get('http://localhost:5000/api/users/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setIsModalOpen(false);
       showNotification('Cuenta eliminada exitosamente.', 'success');
       setTimeout(async () => {
         try {
-          await axios.delete('https://backend-training-nni3.onrender.com/api/users/profile', {
+          await axios.delete('http://localhost:5000/api/users/profile', {
             headers: { Authorization: `Bearer ${token}` },
           });
           localStorage.removeItem('token');
