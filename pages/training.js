@@ -3,36 +3,10 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
 import ProgressBar from '../frontend/components/progressBar';
-import {
-  SectionTitle,
-  ModuleContainer,
-  ModuleTitle,
-  MaterialContainer,
-  MaterialTitle,
-  MaterialDescription,
-  Title,
-  MaterialRoles,
-  SubmoduleTitle,
-  SectionDivider,
-  ContentContainer,
-  ErrorBadge,
-  WarningBadge,
-  InputSearch,
-  IconWrapper,
-  NoSubmoduleText,
-  ModalOverlay,
-  ModalContainer,
-  ModalTitle,
-  ModalContent,
-  DocumentButton,
-  VideoButton,
-  ModalCloseButton,
-  ButtonTest,
-  ButtonTestRetry,
-  NotificationContainer,
-  NotificationMessage,
-  CloseButton
-} from '../frontend/styles/training.styles';
+import { SectionTitle, ModuleContainer, ModuleTitle, MaterialContainer, MaterialTitle, MaterialDescription, Title, MaterialRoles, SubmoduleTitle,
+  SectionDivider, ContentContainer, ErrorBadge, WarningBadge, InputSearch, IconWrapper, NoSubmoduleText, ModalOverlay, ModalContainer, ModalTitle,
+  ModalContent, DocumentButton, VideoButton, ModalCloseButton, ButtonTest, ButtonTestRetry, NotificationContainer, NotificationMessage,
+  CloseButton } from '../frontend/styles/training.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faExclamationTriangle, faSearch, faVideo, faTimes, faFileLines, faLayerGroup, faListUl, faListOl, faClipboard, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
@@ -55,6 +29,9 @@ const CapacitationPage = () => {
   const [customNotification, setCustomNotification] = useState({ message: '', type: '' });
   const [retryCountDown, setRetryCountDown] = useState(null);
   const documentRef = useRef(null);
+  const documentTrackingIntervalRef = useRef(null);
+  const currentTrackingIdRef = useRef(null);
+  const lastProgress = {};
 
   const showCustomNotification = (message, type) => {
     setCustomNotification({ message, type });
@@ -109,7 +86,7 @@ const CapacitationPage = () => {
         } else {
           const progressMap = {};
           progressResponse.data.forEach(progress => {
-            progressMap[progress.trainingId] = progress.progress;
+            progressMap[progress.trainingId] = progress.totalProgress;
           });
   
           setProgressData(progressMap);
@@ -179,10 +156,8 @@ const CapacitationPage = () => {
         });
         setEvaluationPassed(evaluationResponse.data.status === "aprobado");
         setEvalationFailed(evaluationResponse.data.status === "fallado");
-
       } catch (error) {
         if (error.response && error.response.status === 404) {
-          console.log("El usuario aún no tiene una evaluación asignada.");
           setEvaluationPassed(false);
           setEvalationFailed(true);
         } else {
@@ -241,75 +216,76 @@ const CapacitationPage = () => {
     } else {
       document.body.classList.remove("no-scroll");
     }
-  
     return () => {
       document.body.classList.remove("no-scroll");
     };
   }, [isModalOpen]);  
   
-  const openModal = async (training) => {
-    if (!training || !training._id) return;
-  
-    const type = training.video?.fileUrl ? "video" : training.document?.fileUrl ? "document" : null;
-    if (!type) return;
-  
+  const openModal = async (training, type) => {
+    if (!training || !training._id || !type) return;
     setError('');
     setLoading(true);
-  
     try {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-      if (!token || !userId) {
-        setError('No se encuentra el token de autenticación.');
-        setLoading(false);
-        return;
-      }
-      
-      if (role !== "admin") {
-        await startTraining(training._id, type);
-      }
-  
-      const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
-      const userProgress = progressResponse.data.find(p => p.trainingId === training._id);
-  
-      if (userProgress) {
-        setModalData({
-          trainingId: training._id,
-          type,
-          fileUrl: training[type]?.fileUrl,
-          originalFileName: training[type]?.originalFileName || 'Material',
-          progress: userProgress.progress,
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        if (!token || !userId) {
+            setError('No se encuentra el token de autenticación.');
+            setLoading(false);
+            return;
+        }
+
+        if (role !== "admin") {
+            await startTraining(training._id, type);
+        }
+        const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
         });
-  
+        const userProgress = progressResponse.data.find(p => String(p.trainingId) === String(training._id));
+
+        if (userProgress) {
+            setModalData({
+                trainingId: training._id,
+                type,
+                fileUrl: training[type]?.fileUrl,
+                originalFileName: training[type]?.originalFileName || 'Material',
+                progress: userProgress ? (type === "document" ? userProgress.documentProgress : userProgress.videoProgress) : 0,
+            });
+            setIsModalOpen(true);
+
+            if (type === "document") {
+              const savedProgress = Number(localStorage.getItem(`progress_${training._id}`)) || 0;
+              if (savedProgress < 100) {
+                  startDocumentProgressTracking(training._id);
+              }
+          }
+            setLoading(false);
+            return;
+        }
+        await startTraining(training._id, type);
+        setModalData({
+            trainingId: training._id,
+            type,
+            fileUrl: training[type]?.fileUrl,
+            originalFileName: training[type]?.originalFileName || 'Material',
+            progress: type === "document" ? 0 : 0,
+        });
         setIsModalOpen(true);
-        setLoading(false);
-        return;
-      }
-  
-      await startTraining(training._id, type);
-      
-      setModalData({
-        trainingId: training._id,
-        type,
-        fileUrl: training[type]?.fileUrl,
-        originalFileName: training[type]?.originalFileName || 'Material',
-        progress: userProgress ? userProgress.progress : 0,
-      });      
-  
-      setIsModalOpen(true);
     } catch (err) {
-      setError('Error al abrir la capacitación.');
+        setError('Error al abrir la capacitación.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };  
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setModalData(null);
+    currentTrackingIdRef.current = null;
+
+    if (documentTrackingIntervalRef.current) {
+        clearInterval(documentTrackingIntervalRef.current);
+        documentTrackingIntervalRef.current = null;
+    }
   };
 
   const startTraining = async (trainingId, type) => {
@@ -317,7 +293,6 @@ const CapacitationPage = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return setError('No se encuentra el token de autenticación');
-
       await axios.post('http://localhost:5000/api/progress/start', { trainingId, type }, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -331,26 +306,32 @@ const CapacitationPage = () => {
     }
   };
 
-  const updateProgress = async (trainingId, newProgress) => {
+  const updateProgress = async (trainingId, type, newProgress) => {
     if (role === "admin") return;
+  
+    if (lastProgress[trainingId] === newProgress) return;
+    lastProgress[trainingId] = newProgress;
+  
     try {
       const token = localStorage.getItem('token');
       if (!token) return setError('No se encuentra el token de autenticación.');
   
       const response = await axios.post('http://localhost:5000/api/progress/progress', {
         trainingId,
+        type,
         progress: newProgress,
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
   
       if (response.data.message === 'Progreso guardado correctamente') {
-        setProgressData(prev => ({ ...prev, [trainingId]: newProgress }));
+        setProgressData(prev => ({
+          ...prev,
+          [trainingId]: response.data.totalProgress,
+        }));
       }
     } catch (error) {
-      if (error.response && error.response.status === 400) {
-        return;
-      }
+      if (error.response && error.response.status === 400) return;
       if (role !== "admin") {
         setError('Error al guardar el progreso.');
       }
@@ -358,23 +339,39 @@ const CapacitationPage = () => {
   };
 
   const startDocumentProgressTracking = (trainingId) => {
-    let elapsedTime = 0;
-    const interval = setInterval(() => {
-      elapsedTime += 10;
-      const progress = (elapsedTime / 300) * 100;
-      updateProgress(trainingId, Math.min(progress, 100));
-  
-      if (elapsedTime >= 300) {
-        updateProgress(trainingId, 100);
-        clearInterval(interval);
-      }
+    if (documentTrackingIntervalRef.current) {
+        clearInterval(documentTrackingIntervalRef.current);
+        documentTrackingIntervalRef.current = null;
+    }
+
+    currentTrackingIdRef.current = trainingId;
+    let elapsedTime = Number(localStorage.getItem(`progress_${trainingId}`)) || 0;
+
+    documentTrackingIntervalRef.current = setInterval(() => {
+        if (currentTrackingIdRef.current !== trainingId) {
+            clearInterval(documentTrackingIntervalRef.current);
+            documentTrackingIntervalRef.current = null;
+            return;
+        }
+        elapsedTime += 10;
+        const progress = Math.min((elapsedTime / 300) * 100, 100);
+
+        localStorage.setItem(`progress_${trainingId}`, elapsedTime);
+        updateProgress(trainingId, "document", progress);
+
+        if (elapsedTime >= 300) {
+            updateProgress(trainingId, "document", 100);
+            clearInterval(documentTrackingIntervalRef.current);
+            documentTrackingIntervalRef.current = null;
+            localStorage.removeItem(`progress_${trainingId}`);
+        }
     }, 10000);
-  };  
+  };
   
   const handleVideoProgress = (event, trainingId) => {
   const video = event.target;
   const newProgress = (video.currentTime / video.duration) * 100;
-    updateProgress(trainingId, Math.min(newProgress, 100));
+    updateProgress(trainingId, "video", Math.min(newProgress, 100));
   };
 
   const formatTime = (seconds) => {
@@ -387,54 +384,53 @@ const CapacitationPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        showCustomNotification("No se encontró el token de autenticación.", "error");
+          showCustomNotification("No se encontró el token de autenticación.", "error");
         return;
       }
-  
       const response = await axios.post(
-        "http://localhost:5000/api/evaluations/retry",
-        {},
+          "http://localhost:5000/api/evaluations/retry",
+          {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response.data.message) {
-        showCustomNotification(response.data.message, "success");
+          showCustomNotification(response.data.message, "success");
         router.push("/evaluation");
       }
-    } catch (error) {
+  } catch (error) {
       if (error.response?.data?.error) {
         showCustomNotification(error.response.data.error, "error");
-  
-        if (error.response.data.error.includes("Ya has aprobado")) {
+
+      if (error.response.data.error.includes("Ya has aprobado")) {
           setRetryDisabled(true);
-          return;
-        }
-  
-        if (error.response.data.error.includes("límite de intentos")) {
+        return;
+      }
+
+      if (error.response.data.error.includes("límite de intentos")) {
           showCustomNotification("Has alcanzado el máximo de intentos hoy. Inténtalo mañana.", "error");
-          return;
-        }
-  
-        if (error.response.data.remainingTime) {
-          const timeLeft = Math.ceil(error.response.data.remainingTime / 1000);
-          setRetryCountDown(timeLeft);
-  
+        return;
+      }
+
+      if (error.response.data.remainingTime) {
+        const timeLeftMinutes = Math.ceil(error.response.data.remainingTime / (60 * 1000));
+          setRetryCountDown(timeLeftMinutes * 60);
+          showCustomNotification(`Podrás intentarlo nuevamente en ${timeLeftMinutes} minutos.`, "warning");
           const interval = setInterval(() => {
             setRetryCountDown((prev) => {
-              if (prev <= 1) {
-                clearInterval(interval);
-                showCustomNotification("¡Ya puedes volver a intentar la evaluación!", "info");
-                return null;
-              }
-              return prev - 1;
-            });
-          }, 1000);
-        }
+                if (prev <= 1) {
+                  clearInterval(interval);
+                  showCustomNotification("¡Ya puedes volver a intentar la evaluación!", "info");
+                  return null;
+                }
+                return prev - 1;
+              });
+            }, 1000);
+          }
       } else {
-        showCustomNotification("Error al intentar reintentar la evaluación.", "error");
+          showCustomNotification("Error al intentar reintentar la evaluación.", "error");
       }
     }
-  };  
+  };
 
   const goToEvaluation = () => {
     router.push("/evaluation");
@@ -443,6 +439,14 @@ const CapacitationPage = () => {
   const getFileExtension = (url) => {
     return url.split('.').pop();
   };
+
+  useEffect(() => {
+    return () => {
+        if (documentTrackingIntervalRef.current) {
+            clearInterval(documentTrackingIntervalRef.current);
+        }
+    };
+  }, []);
 
   return (
     <>
@@ -531,7 +535,7 @@ const CapacitationPage = () => {
                           )}
                           <div>
                             {material.document?.fileUrl && (
-                              <DocumentButton onClick={() => openModal(material)}>
+                              <DocumentButton onClick={() => openModal(material, "document")}>
                                 <FontAwesomeIcon icon={faFileLines} style={{ marginRight: '8px' }} /> Documento
                               </DocumentButton>
                             )}
@@ -539,13 +543,13 @@ const CapacitationPage = () => {
                               <span style={{ margin: '0 6px 0 6px', fontSize: '29px' }}>|</span>
                             )}
                             {material.video?.fileUrl && (
-                              <VideoButton onClick={() => openModal(material)}>
+                              <VideoButton onClick={() => openModal(material, "video")}>
                                 <FontAwesomeIcon icon={faVideo} style={{ marginRight: '8px' }} /> Video
                               </VideoButton>
                             )}
                           </div>
                           {role !== "admin" && (
-                            <ProgressBar progress={progressData[material._id] || 0} />
+                            <ProgressBar progress={progressData[material._id] ?? 0} />
                           )}
                         </MaterialContainer>
                       ))
@@ -584,37 +588,37 @@ const CapacitationPage = () => {
             )}
             <div style={{ marginBottom: '5px' }}/>
             <ModalContent>
-            {modalData?.fileUrl ? (
-              modalData.fileUrl.endsWith('.pdf') ? (
-                <iframe
-                  ref={documentRef}
-                  title="Material"
-                  src={modalData.fileUrl}
-                  style={{ width: "100%", height: "70vh", border: "none" }}
-                  onLoad={() => {
-                    startDocumentProgressTracking(modalData.trainingId);
-                  }}
-                />
-              ) : modalData.fileUrl.endsWith('.mp4') ? (
-                <video
-                  width="100%"
-                  height="auto"
-                  controls
-                  autoPlay
-                  onLoadedMetadata={(event) => {
-                    if (modalData.progress > 0) {
-                      event.target.currentTime = (modalData.progress / 100) * event.target.duration;
-                    }
-                  }}
-                  onTimeUpdate={(event) => handleVideoProgress(event, modalData.trainingId)}
-                >
-                  <source src={modalData.fileUrl} type="video/mp4" />
-                  Tu navegador no soporta la etiqueta de video.
-                </video>
-              ) : null
-            ) : (
-              <p>Este material no está disponible.</p>
-            )}
+              {modalData?.fileUrl ? (
+                modalData.type === "document" ? (
+                  <iframe
+                    ref={documentRef}
+                    title="Material"
+                    src={modalData.fileUrl}
+                    style={{ width: "100%", height: "70vh", border: "none" }}
+                    onLoad={() => {
+                      startDocumentProgressTracking(modalData.trainingId);
+                    }}
+                  />
+                ) : modalData.type === "video" ? (
+                  <video
+                    width="100%"
+                    height="auto"
+                    controls
+                    autoPlay
+                    onLoadedMetadata={(event) => {
+                      if (modalData.progress > 0) {
+                        event.target.currentTime = (modalData.progress / 100) * event.target.duration;
+                      }
+                    }}
+                    onTimeUpdate={(event) => handleVideoProgress(event, modalData.trainingId)}
+                  >
+                    <source src={modalData.fileUrl} type="video/mp4" />
+                    Tu navegador no soporta la etiqueta de video.
+                  </video>
+                ) : null
+              ) : (
+                <p>Este material no está disponible.</p>
+              )}
             </ModalContent>
             <ModalCloseButton onClick={closeModal}>
               <FontAwesomeIcon icon={faTimes} />
