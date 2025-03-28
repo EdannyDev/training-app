@@ -1,6 +1,6 @@
 {
   "functions": {
-    "middleware/*": {
+    "middleware/middleware.js": {
       "runtime": "edge@1.0.0"
     }
   }
