@@ -34,12 +34,12 @@ const Progress = () => {
         const headers = { Authorization: `Bearer ${token}` };
 
         const progressResponse = await axios.get(
-          'http://localhost:5000/api/progress/all-progress',
+          'https://backend-training-cs9o.onrender.com/api/progress/all-progress',
           { headers }
         );
 
         const completedResponse = await axios.get(
-          'http://localhost:5000/api/progress/all-completed',
+          'https://backend-training-cs9o.onrender.com/api/progress/all-completed',
           { headers }
         );
 

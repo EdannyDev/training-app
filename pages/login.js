@@ -26,7 +26,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password });
+      const { data } = await axios.post('https://backend-training-cs9o.onrender.com/api/users/login', { email, password });
       const { token, role, userId } = data;
 
       localStorage.setItem('token', token);
