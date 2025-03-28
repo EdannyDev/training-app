@@ -79,18 +79,15 @@ const Profile = () => {
   
     const isNameValid = validateName(trimmedName);
     const isEmailValid = validateEmail(trimmedEmail);
-    const isPasswordValid = user.newPassword ? validatePassword(user.newPassword) : true;
-    const isSecurityCodeValid = user.newSecurityCode ? validateSecurityCode(user.newSecurityCode) : true;
   
-    if (!isNameValid || !isEmailValid || !isPasswordValid || !isSecurityCodeValid) {
+    if (!isNameValid || !isEmailValid) {
       return;
     }
   
     if (
       trimmedName === originalData.name.trim() &&
       trimmedEmail === originalData.email.trim() &&
-      (!user.newPassword || user.newPassword === originalData.password) &&
-      (!user.newSecurityCode || user.newSecurityCode === originalData.securityCode)
+      !user.newPassword && !user.newSecurityCode
     ) {
       showNotification('No has modificado ningún dato. Realiza cambios para actualizar.', 'error');
       return;
@@ -101,8 +98,8 @@ const Profile = () => {
       const updatedData = {
         name: trimmedName,
         email: trimmedEmail,
-        newPassword: user.newPassword,
-        newSecurityCode: user.newSecurityCode,
+        newPassword: user.newPassword || undefined,
+        newSecurityCode: user.newSecurityCode || undefined, 
       };
   
       const response = await axios.put('http://localhost:5000/api/users/profile', updatedData, {
