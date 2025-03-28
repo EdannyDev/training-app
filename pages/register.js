@@ -92,7 +92,7 @@ const Register = () => {
           />
           {showEmailTip && (
             <TipMessage>
-              Tip: El email de acceso es tu nombre y rol, por ejemplo: <b>@adviser.com</b> es para asesores.
+              Tip: El email de acceso es tu nombre y puesto en la empresa, por ejemplo: <b>@adviser.com</b> es para asesores.
             </TipMessage>
           )}
         </div>

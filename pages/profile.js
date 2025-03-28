@@ -117,10 +117,17 @@ const Profile = () => {
             router.push('/login');
           }, 2000);
         } else {
+          const emailChanged = trimmedEmail !== originalData.email.trim();
           showNotification('Perfil actualizado con éxito.', 'success');
           setOriginalData({ name: trimmedName, email: trimmedEmail, role: user.role });
           setUser((prevUser) => ({ ...prevUser, newPassword: '', newSecurityCode: '' }));
           setShowSecurityCode(false);
+
+          if (emailChanged) {
+            setTimeout(() => {
+              window.location.reload();
+            }, 3000);
+          }
         }
       }
   

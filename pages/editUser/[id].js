@@ -140,8 +140,12 @@ const EditUser = () => {
         setShowNotification(false);
         router.push('/users');
       }, 3000);
-    } catch {
-      setNotificationMessage('Error al actualizar el usuario');
+    }  catch (error) {
+      if (error.response && error.response.status === 400) {
+        setNotificationMessage('El correo electrónico no es válido para el rol.');
+      } else {
+        setNotificationMessage('Error al actualizar el usuario');
+      }
       setNotificationType('error');
       setShowNotification(true);
     }
