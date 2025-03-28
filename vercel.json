@@ -1,7 +1,3 @@
 {
-  "functions": {
-    "middleware/middleware.js": {
-      "runtime": "edge@1.0.0"
-    }
-  }
+  "version": 2
 }
