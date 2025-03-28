@@ -31,16 +31,18 @@ export const SearchContainer = styled.div`
   color: #888;
   flex-wrap: wrap;
 
+  @media (max-width: 1024px) {
+    width: 90%; 
+  }
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
     gap: 15px;
-    width: 100%;
   }
 
   @media (max-width: 480px) {
     gap: 12px;
-    width: 100%;
   }
 `;
 
@@ -124,12 +126,12 @@ export const AddButton = styled.button`
 
   @media (max-width: 768px) {
     font-size: 14px;
-    padding: 6px 12px;
+    padding: 8px 12px;
   }
 
   @media (max-width: 480px) {
     font-size: 12px;
-    padding: 5px 10px;
+    padding: 6px 10px;
   }
 `;
 

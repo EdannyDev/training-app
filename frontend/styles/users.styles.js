@@ -7,16 +7,17 @@ export const UserTableContainer = styled.div`
   padding: 20px;
   width: 100%;
   max-width: 90%;
-  margin: 60px auto 0;
+  margin: 0 auto;
+  margin-top: 60px;
 
   @media (max-width: 768px) {
+    margin-top: 40px;
     padding: 15px;
-    margin: 40px auto 0;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 425px) {
+    margin-top: 30px auto;
     padding: 10px;
-    margin: 20px auto 0;
   }
 `;
 
@@ -129,11 +130,12 @@ export const SearchContainer = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
+    align-items: center;
     gap: 15px;
   }
 
   @media (max-width: 480px) {
-    gap: 10px;
+    gap: 12px;
   }
 `;
 
@@ -178,7 +180,7 @@ export const Input = styled.input`
 export const ProgressButton = styled.button`
   background-color: #007bff;
   color: white;
-  padding: 10px 16px;
+  padding: 8px 16px;
   font-size: 16px;
   border: none;
   border-radius: 5px;
@@ -227,7 +229,8 @@ export const UserManagementTitle = styled.h2`
   }
 
   @media (max-width: 480px) {
-    font-size: 10px;
+    font-size: 24px;
+    margin: 10px 0;
   }
 `;
 
