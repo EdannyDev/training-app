@@ -37,7 +37,7 @@ const EvaluationPage = () => {
           return;
         }
 
-        const response = await axios.get("https://backend-training-cs9o.onrender.com/api/evaluations/assigned", {
+        const response = await axios.get("http://localhost:5000/api/evaluations/assigned", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -90,7 +90,7 @@ const EvaluationPage = () => {
       }));
 
       const response = await axios.post(
-        "https://backend-training-cs9o.onrender.com/api/evaluations/submit",
+        "http://localhost:5000/api/evaluations/submit",
         { userId, answers: formattedAnswers },
         { headers: { Authorization: `Bearer ${token}` } }
       );
