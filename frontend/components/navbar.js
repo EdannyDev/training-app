@@ -43,6 +43,7 @@ const Navbar = () => {
       setTimeout(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
+        localStorage.removeItem('userId');
         router.push('/login');
       }, 3000);
     }
