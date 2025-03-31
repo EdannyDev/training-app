@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../../utils/api';
 import { useRouter } from 'next/router';
 import Notification from '../../frontend/components/notification';
 import Spinner from '@/frontend/components/spinner';
@@ -54,11 +54,7 @@ const EditTraining = () => {
     const fetchTraining = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/trainings/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
+        const response = await API.get(`/trainings/${id}`);
         const { title, description, roles, section, module, submodule, document, video } = response.data;
         setFormData({
           title,
@@ -263,9 +259,6 @@ const EditTraining = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-    if (!token) return handleNotification('No hay token de autenticación', 'error');
-
     if (!validateInputs()) return;
 
     if (!hasChanges()) {
@@ -280,10 +273,7 @@ const EditTraining = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/trainings/${id}`, updatedData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      await API.put(`/trainings/${id}`, updatedData); 
       handleNotification('Capacitación actualizada con éxito');
       setTimeout(() => router.push('/table'), 3000);
     } catch (error) {

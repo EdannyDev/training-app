@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
 import ProgressBar from '../frontend/components/progressBar';
@@ -48,19 +48,9 @@ const CapacitationPage = () => {
       setNoMaterialsError(false);
   
       try {
-        const token = localStorage.getItem('token');
         const role = localStorage.getItem('role');
         setRole(role);
-        if (!token) {
-          setError('No se encuentra el token de autenticación.');
-          setLoading(false);
-          return;
-        }
-  
-        const response = await axios.get('http://localhost:5000/api/trainings', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
+        const response = await API.get('/trainings');
         if (!response.data || Object.keys(response.data).length === 0) {
           setNoMaterialsError(true);
           setFilteredMaterials({});
@@ -77,10 +67,7 @@ const CapacitationPage = () => {
         const userId = localStorage.getItem('userId');
         if (!userId) return;
   
-        const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
+        const progressResponse = await API.get(`/progress/view/${userId}`);
         if (!progressResponse.data || progressResponse.data.length === 0) {
           setProgressData({});
         } else {
@@ -129,12 +116,7 @@ const CapacitationPage = () => {
             if (role === "admin") {
                 return;
             }
-            const progressResponse = await axios.get(
-                `http://localhost:5000/api/progress/completed/${userId}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
+            const progressResponse = await API.get(`/progress/completed/${userId}`);
             setAllCompleted(progressResponse.data.allCompleted);
         } catch (error) {
             if (error.response?.status === 403) {
@@ -151,9 +133,7 @@ const CapacitationPage = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const evaluationResponse = await axios.get("http://localhost:5000/api/evaluations/status", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const evaluationResponse = await API.get("/evaluations/status");
         setEvaluationPassed(evaluationResponse.data.status === "aprobado");
         setEvalationFailed(evaluationResponse.data.status === "fallado");
       } catch (error) {
@@ -226,20 +206,18 @@ const CapacitationPage = () => {
     setError('');
     setLoading(true);
     try {
-        const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
-        if (!token || !userId) {
-            setError('No se encuentra el token de autenticación.');
-            setLoading(false);
-            return;
+        if (!userId) {
+          setError('No se encuentra el ID del usuario.');
+          setLoading(false);
+          return;
         }
 
         if (role !== "admin") {
-            await startTraining(training._id, type);
+          await startTraining(training._id, type);
         }
-        const progressResponse = await axios.get(`http://localhost:5000/api/progress/view/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+
+        const progressResponse = await API.get(`/progress/view/${userId}`);
         const userProgress = progressResponse.data.find(p => String(p.trainingId) === String(training._id));
 
         if (userProgress) {
@@ -291,11 +269,7 @@ const CapacitationPage = () => {
   const startTraining = async (trainingId, type) => {
     if (role === "admin") return;
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return setError('No se encuentra el token de autenticación');
-      await axios.post('http://localhost:5000/api/progress/start', { trainingId, type }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await API.post('/progress/start', { trainingId, type });
     } catch (error) {
       if (error.response && error.response.status === 400) {
         return;
@@ -313,17 +287,11 @@ const CapacitationPage = () => {
     lastProgress[trainingId] = newProgress;
   
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return setError('No se encuentra el token de autenticación.');
-  
-      const response = await axios.post('http://localhost:5000/api/progress/progress', {
+      const response = await API.post('/progress/progress', {
         trainingId,
         type,
         progress: newProgress,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
+      });  
       if (response.data.message === 'Progreso guardado correctamente') {
         setProgressData(prev => ({
           ...prev,
@@ -382,17 +350,7 @@ const CapacitationPage = () => {
 
   const handleRetryEvaluation = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-          showCustomNotification("No se encontró el token de autenticación.", "error");
-        return;
-      }
-      const response = await axios.post(
-          "http://localhost:5000/api/evaluations/retry",
-          {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      const response = await API.post("/evaluations/retry");
       if (response.data.message) {
           showCustomNotification(response.data.message, "success");
         router.push("/evaluation");

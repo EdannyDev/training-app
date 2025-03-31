@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import API from '../utils/api';
 import { 
   ProgressContainer, 
   Title, 
@@ -30,19 +30,8 @@ const Progress = () => {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const headers = { Authorization: `Bearer ${token}` };
-
-        const progressResponse = await axios.get(
-          'http://localhost:5000/api/progress/all-progress',
-          { headers }
-        );
-
-        const completedResponse = await axios.get(
-          'http://localhost:5000/api/progress/all-completed',
-          { headers }
-        );
-
+        const progressResponse = await API.get('/progress/all-progress');
+        const completedResponse = await API.get('/progress/all-completed');
         setUsersProgress(progressResponse.data);
         setCompletedUsers(completedResponse.data.map(user => user.userId));
       } catch (error) {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import { 
   Button, 
@@ -33,8 +33,7 @@ const Register = () => {
     setNotification(null);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', { name, email, password, securityCode });
-
+      const response = await API.post('/users/register', { name, email, password, securityCode });
       if (response.status === 201) {
         setNotification({ message: 'Registro exitoso. Por favor, Inicia Sesión.', type: 'success' });
         setTimeout(() => {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../../utils/api';
 import { useRouter } from 'next/router';
 import Notification from '../../frontend/components/notification';
 import Spinner from '@/frontend/components/spinner';  
 import { 
-  EditUserContainer, 
+  EditUserContainer,
   EditUserCard,
   EditUserTitle, 
   EditUserInput, 
@@ -32,16 +32,10 @@ const EditUser = () => {
   const router = useRouter();
   const { id } = router.query;
 
-  const getToken = () => {
-    return localStorage.getItem('token');
-  };
-
   useEffect(() => {
     if (id) {
       setLoading(true);
-      axios.get(`http://localhost:5000/api/users/list/${id}`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      })
+      API.get(`/users/list/${id}`)
       .then(response => {
         setUser(response.data);
         setName(response.data.name);
@@ -129,9 +123,7 @@ const EditUser = () => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/users/update/${id}`, updatedData, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      await API.put(`/users/update/${id}`, updatedData);
       setNotificationMessage('Usuario actualizado con éxito');
       setNotificationType('success');
       setShowNotification(true);

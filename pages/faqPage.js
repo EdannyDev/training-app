@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import Spinner from '@/frontend/components/spinner';
 import { 
   Container, 
@@ -42,10 +42,7 @@ const FAQs = () => {
       }
 
       try {
-        const { data } = await axios.get('http://localhost:5000/api/faqs', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+        const { data } = await API.get('/faqs');
         if (data.length === 0) {
           setNoFAQsError(true);
         } else {

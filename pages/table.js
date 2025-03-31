@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
 import {
@@ -47,10 +47,7 @@ const TrainingTable = () => {
   const fetchTrainings = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/trainings', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-
+      const { data } = await API.get('/trainings');
       const trainingsArray = Object.values(data).flatMap(modules =>
         Object.values(modules).flatMap(training => training)
       );
@@ -133,9 +130,7 @@ const TrainingTable = () => {
     }
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:5000/api/trainings/${selectedTraining._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await API.delete(`/trainings/${selectedTraining._id}`);
       const updatedTrainings = trainings.filter(t => t._id !== selectedTraining._id);
       setTrainings(updatedTrainings);
       setFilteredTrainings(updatedTrainings);

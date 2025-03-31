@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import {
   FormContainer,
@@ -26,7 +26,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password });
+      const { data } = await API.post('/users/login', { email, password });
       const { token, role, userId } = data;
 
       localStorage.setItem('token', token);

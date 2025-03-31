@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import API from '../utils/api';
 import {
   Container,
   Title,
@@ -154,18 +154,10 @@ const AddTraining = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem('token');
-    if (!token) return showNotification('No hay token de autenticación', 'error');
     if (!validateInputs()) return;
 
-    const data = { ...formData };
-
     try {
-      await axios.post('http://localhost:5000/api/trainings', data, {
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      });
-
+      await API.post('/trainings', formData);
       showNotification('Capacitación agregada con éxito');
       setTimeout(() => router.push('/table'), 3000);
     } catch (error) {

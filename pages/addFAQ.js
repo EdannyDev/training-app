@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import Notification from '../frontend/components/notification';
 import {
@@ -25,10 +25,6 @@ const AddFAQ = () => {
   const [tokenExpired, setTokenExpired] = useState(false);
   const router = useRouter();
   const rolesOptions = ['asesor', 'asesorJR', 'gerente_sucursal', 'gerente_zona'];
-
-  const getToken = () => {
-    return localStorage.getItem('token');
-  };
 
   const handleRoleChange = (e) => {
     const value = e.target.value;
@@ -84,11 +80,7 @@ const AddFAQ = () => {
     }
 
     try {
-      const response = await axios.post(
-        'http://localhost:5000/api/faqs',
-        { question, answer, roles },
-        { headers: { Authorization: `Bearer ${getToken()}` } }
-      );
+      const response = await API.post('/faqs', { question, answer, roles });
       setNotification({ message: response.data.message, type: 'success' });
       setTimeout(() => {
         router.push('/faqs');

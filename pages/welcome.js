@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import API from '../utils/api';
 import {
   WelcomeContainer,
   Header,
@@ -32,9 +32,7 @@ const Welcome = () => {
       }
 
       try {
-        const { data } = await axios.get('http://localhost:5000/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const { data } = await API.get('/users/profile');
         setUser(data);
       } catch {
         localStorage.removeItem('token');

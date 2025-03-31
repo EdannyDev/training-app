@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import API from '../utils/api';
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faFileLines, faPaperPlane, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
@@ -37,9 +37,7 @@ const EvaluationPage = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/evaluations/assigned", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await API.get("/evaluations/assigned");
 
         if (response.data && response.data.questions) {
           setQuestions(response.data.questions);
@@ -89,11 +87,10 @@ const EvaluationPage = () => {
         selectedOption: answers[questionId],
       }));
 
-      const response = await axios.post(
-        "http://localhost:5000/api/evaluations/submit",
-        { userId, answers: formattedAnswers },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await API.post("/evaluations/submit", {
+        userId,
+        answers: formattedAnswers,
+      });
 
       if (response.data.status === "aprobado") {
         setMessage("¡Felicidades! Has aprobado la evaluación.");

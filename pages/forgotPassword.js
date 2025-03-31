@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import {
   FormContainer,
@@ -78,7 +78,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/forgot-password', { email, securityCode });
+      const response = await API.post('/users/forgot-password', { email, securityCode });
       setResetToken(response.data.resetToken);
       setNotification({ message: 'Token generado correctamente', type: 'success' });
       setShowModal(true);
@@ -105,7 +105,7 @@ const ForgotPassword = () => {
     }
   
     try {
-      await axios.post('http://localhost:5000/api/users/reset-password', { token: resetToken, newPassword });
+      await API.post('/users/reset-password', { token: resetToken, newPassword });
       setShowModal(false);
       setEmail('');
       setSecurityCode('');

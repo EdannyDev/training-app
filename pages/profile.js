@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
-import axios from 'axios';
+import API from '../utils/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock, faEye, faEyeSlash, faSave, faTrash, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { ProfileContainer, FormContainer, InputContainer, InputWrapper, Icon, ToggleIcon, Input, Description, Line, Button, ButtonContainer } from '../frontend/styles/profile.styles';
@@ -23,11 +23,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get('http://localhost:5000/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
+        const { data } = await API.get('/users/profile');
         setUser({ ...data, newPassword: '', newSecurityCode: '' });
         setOriginalData({ ...data, password: '' });
         setUserRole(data.role);
@@ -94,18 +90,13 @@ const Profile = () => {
     }
   
     try {
-      const token = localStorage.getItem('token');
       const updatedData = {
         name: trimmedName,
         email: trimmedEmail,
         newPassword: user.newPassword || undefined,
         newSecurityCode: user.newSecurityCode || undefined, 
-      };
-  
-      const response = await axios.put('http://localhost:5000/api/users/profile', updatedData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
+      };  
+      const response = await API.put('/users/profile', updatedData);
       if (response.data.message === 'Usuario actualizado correctamente') {
         if (user.newPassword) {
           showNotification('Contraseña actualizada. Cerrando sesión...', 'success');
@@ -144,16 +135,12 @@ const Profile = () => {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:5000/api/users/profile', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await API.get('/users/profile');
       setIsModalOpen(false);
       showNotification('Cuenta eliminada exitosamente.', 'success');
       setTimeout(async () => {
         try {
-          await axios.delete('http://localhost:5000/api/users/profile', {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await API.delete('/users/profile');
           localStorage.removeItem('token');
           router.push('/login');
         } catch (error) {

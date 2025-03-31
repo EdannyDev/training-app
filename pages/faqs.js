@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
 import {
@@ -45,15 +45,7 @@ const FAQTable = () => {
     const fetchFaqs = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setNotification({ message: 'No se encuentra el token de autenticación', type: 'error' });
-          return;
-        }
-
-        const response = await axios.get('http://localhost:5000/api/faqs', {
-          headers: { Authorization: `Bearer ${token}`},
-        });
+        const response = await API.get('/faqs');
         setFaqs(response.data);
       } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -124,17 +116,7 @@ const FAQTable = () => {
   const handleDelete = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setNotification({ message: 'No se encuentra el token de autenticación', type: 'error' });
-        setModalOpen(false);
-        return;
-      }
-      
-      await axios.delete(`http://localhost:5000/api/faqs/${selectedFAQ._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      await API.delete(`/faqs/${selectedFAQ._id}`);
       const updatedFaqs = faqs.filter(f => f._id !== selectedFAQ._id);
       setFaqs(updatedFaqs);
       setModalOpen(false);

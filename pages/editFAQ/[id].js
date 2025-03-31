@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../../utils/api';
 import { useRouter } from 'next/router';
 import Notification from '../../frontend/components/notification';
 import Spinner from '@/frontend/components/spinner';
@@ -34,9 +34,7 @@ const EditFAQ = () => {
       const fetchFAQ = async () => {
         setLoading(true);
         try {
-          const { data } = await axios.get(`http://localhost:5000/api/faqs/${id}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          });
+          const { data } = await API.get(`/faqs/${id}`);
           setFaq(data);
           setQuestion(data.question);
           setAnswer(data.answer);
@@ -116,9 +114,7 @@ const EditFAQ = () => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/faqs/${id}`, updatedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
+      await API.put(`/faqs/${id}`, updatedData); 
       setNotification({ show: true, message: 'Cambios guardados correctamente. Verifica en la lista de FAQs.', type: 'success' });
       setTimeout(() => {
         setNotification({ show: false });

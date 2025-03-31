@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../utils/api';
 import { useRouter } from 'next/router';
 import Spinner from '@/frontend/components/spinner';
 import {
@@ -44,9 +44,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/api/users/list', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        });
+        const response = await API.get('/users/list');
         setUsers(response.data);
       } catch (error) {
         if (error.response && error.response.status === 401) {
@@ -127,10 +125,7 @@ const UserManagement = () => {
     }
   
     setLoading(true);
-    axios
-      .delete(`http://localhost:5000/api/users/delete/${userToDelete}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    API.delete(`/users/delete/${userToDelete}`)
       .then(() => {
         const updatedUsers = users.filter((user) => user._id !== userToDelete);
         setUsers(updatedUsers);
