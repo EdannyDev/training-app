@@ -8,7 +8,7 @@ import { SectionTitle, ModuleContainer, ModuleTitle, MaterialContainer, Material
   ModalContent, DocumentButton, VideoButton, ModalCloseButton, ButtonTest, ButtonTestRetry, NotificationContainer, NotificationMessage,
   CloseButton } from '../frontend/styles/training.styles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle, faExclamationTriangle, faSearch, faVideo, faTimes, faFileLines, faLayerGroup, faListUl, faListOl, faClipboard, faRotateRight } from '@fortawesome/free-solid-svg-icons';
+import { faExclamationCircle, faExclamationTriangle, faSearch, faVideo, faTimes, faFileLines, faLayerGroup, faListUl, faListOl, faClipboard, faRotateRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 const CapacitationPage = () => {
   const [materials, setMaterials] = useState({});
@@ -32,10 +32,11 @@ const CapacitationPage = () => {
   const documentTrackingIntervalRef = useRef(null);
   const currentTrackingIdRef = useRef(null);
   const lastProgress = {};
+  const [retryDisabled, setRetryDisabled] = useState(false);
 
   const showCustomNotification = (message, type) => {
     setCustomNotification({ message, type });
-    setTimeout(() => setCustomNotification({ message: '', type: '' }), 2000);
+    setTimeout(() => setCustomNotification({ message: '', type: '' }), 3000);
   };
 
   const minLength = 3;
@@ -285,13 +286,19 @@ const CapacitationPage = () => {
   
     if (lastProgress[trainingId] === newProgress) return;
     lastProgress[trainingId] = newProgress;
-  
+
+    const userId = localStorage.getItem("userId"); 
+    if (!userId) {
+        showCustomNotification("Usuario no encontrado.", "error");
+        return;
+    }
     try {
       const response = await API.post('/progress/progress', {
         trainingId,
         type,
         progress: newProgress,
       });  
+
       if (response.data.message === 'Progreso guardado correctamente') {
         setProgressData(prev => ({
           ...prev,
@@ -300,9 +307,25 @@ const CapacitationPage = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 400) return;
+      
       if (role !== "admin") {
-        setError('Error al guardar el progreso.');
+        showCustomNotification("Error al guardar el progreso.", "error");
       }
+      return;
+    }
+    try {
+      const progressResponse = await API.get(`/progress/completed/${userId}`);
+      setAllCompleted(progressResponse.data.allCompleted);
+
+      if (progressResponse.data.allCompleted) {
+        setCustomNotification({ 
+          message: "Capacitaciones Completas. Evaluación asignada.", 
+          type: "success" 
+        });
+        setTimeout(() => setCustomNotification({ message: '', type: '' }), 10000);
+      }
+    } catch (error) {
+      console.error("Error verificando progreso del usuario:", error);
     }
   };
 
@@ -350,45 +373,87 @@ const CapacitationPage = () => {
 
   const handleRetryEvaluation = async () => {
     try {
-      const response = await API.post("/evaluations/retry");
-      if (response.data.message) {
-          showCustomNotification(response.data.message, "success");
-        router.push("/evaluation");
-      }
-  } catch (error) {
-      if (error.response?.data?.error) {
-        showCustomNotification(error.response.data.error, "error");
+        const retryTimeResponse = await API.get("/evaluations/retry-time");
 
-      if (error.response.data.error.includes("Ya has aprobado")) {
-          setRetryDisabled(true);
-        return;
-      }
+        if (retryTimeResponse.data.retryTimestamp) {
+            showCustomNotification(
+                "Debes esperar antes de intentar la evaluación nuevamente.",
+                "error"
+            );
+            setRetryDisabled(true);
+            return;
+        }
 
-      if (error.response.data.error.includes("límite de intentos")) {
-          showCustomNotification("Has alcanzado el máximo de intentos hoy. Inténtalo mañana.", "error");
-        return;
-      }
+        const response = await API.post("/evaluations/retry");
 
-      if (error.response.data.remainingTime) {
-        const timeLeftMinutes = Math.ceil(error.response.data.remainingTime / (60 * 1000));
-          setRetryCountDown(timeLeftMinutes * 60);
-          showCustomNotification(`Podrás intentarlo nuevamente en ${timeLeftMinutes} minutos.`, "warning");
-          const interval = setInterval(() => {
-            setRetryCountDown((prev) => {
-                if (prev <= 1) {
-                  clearInterval(interval);
-                  showCustomNotification("¡Ya puedes volver a intentar la evaluación!", "info");
-                  return null;
-                }
-                return prev - 1;
-              });
-            }, 1000);
-          }
-      } else {
-          showCustomNotification("Error al intentar reintentar la evaluación.", "error");
+        if (response.data.message) {
+            showCustomNotification(response.data.message, "success");
+            router.push("/evaluation");
+        }
+    } catch (error) {
+        if (error.response?.data?.error) {
+            showCustomNotification(error.response.data.error, "error");
+
+            if (error.response.data.error.includes("Ya has aprobado")) {
+                setRetryDisabled(true);
+            }
+
+            if (error.response.data.remainingTime) {
+                const remainingSeconds = Math.ceil(error.response.data.remainingTime / 1000);
+                setRetryCountDown(remainingSeconds);
+                setRetryDisabled(true);
+                const remainingMinutes = Math.ceil(remainingSeconds / 60);
+                const timeText = remainingMinutes === 1 ? "1 minuto" : `${remainingMinutes} minutos`;
+                showCustomNotification(
+                  `Podrás intentarlo nuevamente en ${timeText}.`,
+                  "warning"
+              );
+            }
+        } else {
+        showCustomNotification("Error al intentar reintentar la evaluación.", "error");
       }
     }
   };
+
+  useEffect(() => {
+    const checkRetryTime = async () => {
+        try {
+            const response = await API.get("/evaluations/retry-time");
+
+            if (response.data.retryTimestamp) {
+                const retryEndTime = new Date(response.data.retryTimestamp).getTime();
+                const timeLeft = Math.max(0, Math.ceil((retryEndTime - Date.now()) / 1000));
+
+                if (timeLeft > 0) {
+                    setRetryCountDown(timeLeft);
+                    setRetryDisabled(true);
+                }
+            } else {
+                setRetryDisabled(false);
+            }
+        } catch (error) {
+            console.error("Error obteniendo el tiempo de reintento:", error);
+        }
+    };
+    checkRetryTime();
+  }, []);
+
+  useEffect(() => {
+    if (retryCountDown !== null && retryCountDown > 0) {
+      const interval = setInterval(() => {
+          setRetryCountDown((prev) => {
+              if (prev <= 1) {
+                  clearInterval(interval);
+                  setRetryDisabled(false);
+                  return null;
+              }
+              return prev - 1;
+          });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [retryCountDown]);
 
   const goToEvaluation = () => {
     router.push("/evaluation");
@@ -409,28 +474,32 @@ const CapacitationPage = () => {
   return (
     <>
       {customNotification.message && (
-        <NotificationContainer type={customNotification.type}>
+       <NotificationContainer type={customNotification.type}>
+        {customNotification.type === "success" ? (
+          <FontAwesomeIcon icon={faCheckCircle} style={{ marginBottom: '2px' }} />
+        ) : (
           <FontAwesomeIcon icon={faExclamationCircle} style={{ marginBottom: '2px' }} />
+        )}
           <NotificationMessage>{customNotification.message}</NotificationMessage>
-          <CloseButton onClick={() => setCustomNotification({ message: '', type: '' })} style={{ marginTop: '2px' }} >
+          <CloseButton onClick={() => setCustomNotification({ message: '', type: '' })} style={{ marginTop: '2px' }}>
             <FontAwesomeIcon icon={faTimes} />
           </CloseButton>
-        </NotificationContainer>
+        </NotificationContainer>     
       )}
-      {retryCountDown !== null && (
+      {retryCountDown !== null && retryCountDown > 0 && (
         <div style={{
-          position: "fixed",
-          top: "70px",
-          left: "11%",
-          transform: "translateX(-50%)",
-          background: "#ffcc00",
-          color: "#333",
-          padding: "12px 20px",
-          borderRadius: "6px",
-          fontSize: "18px",
-          fontWeight: "bold",
-          zIndex: 1000,
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
+            position: "fixed",
+            top: "70px",
+            left: "11%",
+            transform: "translateX(-50%)",
+            background: "#ffcc00",
+            color: "#333",
+            padding: "12px 20px",
+            borderRadius: "6px",
+            fontSize: "18px",
+            fontWeight: "bold",
+            zIndex: 1000,
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)"
         }}>
           Tiempo restante: {formatTime(retryCountDown)}
         </div>
@@ -526,9 +595,16 @@ const CapacitationPage = () => {
             </ButtonTest>
           )}
 
-          {allCompleted && evaluationFailed && (
-            <ButtonTestRetry onClick={handleRetryEvaluation} disabled={retryCountDown !== null}  style={{ background: retryCountDown !== null ? "#d3d3d3" : "#f0a500", cursor: retryCountDown !== null ? "not-allowed" : "pointer" }}>
-              <FontAwesomeIcon icon={faRotateRight} /> 
+          {allCompleted && evaluationFailed && !evaluationPassed && (
+            <ButtonTestRetry 
+                onClick={handleRetryEvaluation} 
+                disabled={retryDisabled} 
+                style={{ 
+                    background: retryDisabled ? "#d3d3d3" : "#f0a500", 
+                    cursor: retryDisabled ? "not-allowed" : "pointer" 
+                }}
+            >
+                <FontAwesomeIcon icon={faRotateRight} /> 
                 Reintentar Evaluación
             </ButtonTestRetry>
           )}
