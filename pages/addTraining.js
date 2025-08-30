@@ -48,10 +48,10 @@ const AddTraining = () => {
   const handleDocumentUpload = () => {
     const widget = window.cloudinary.createUploadWidget(
       {
-        cloudName: 'darkdanny25',
-        uploadPreset: 'jewl7kdx',
+        cloudName: 'dsl7stuzv',
+        uploadPreset: 'Devupload25',
         sources: ['local', 'url'],
-        resourceType: 'auto',
+        resourceType: 'raw',
         folder: 'documents',
       },
       (error, result) => {
@@ -83,8 +83,8 @@ const AddTraining = () => {
   const handleVideoUpload = () => {
     const widget = window.cloudinary.createUploadWidget(
       {
-        cloudName: 'darkdanny25',
-        uploadPreset: 'jewl7kdx',
+        cloudName: 'dsl7stuzv',
+        uploadPreset: 'Devupload25',
         sources: ['local', 'url'],
         resourceType: 'video',
         folder: 'videos',

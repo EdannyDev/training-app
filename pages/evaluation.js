@@ -24,34 +24,48 @@ const EvaluationPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchEvaluation = async () => {
-      setLoading(true);
-      setMessage(null);
+  const fetchEvaluation = async () => {
+    setLoading(true);
+    setMessage(null);
 
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setMessage("Error de autenticación. Inicia sesión nuevamente.");
-          setMessageType("error");
-          setLoading(false);
-          return;
-        }
-
-        const response = await API.get("/evaluations/assigned");
-
-        if (response.data && response.data.questions) {
-          setQuestions(response.data.questions);
-        } else {
-          setMessage("No hay evaluación disponible.");
-          setMessageType("error");
-        }
-      } catch {
-        setMessage("Error al cargar la evaluación.");
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setMessage("Error de autenticación. Inicia sesión nuevamente.");
         setMessageType("error");
-      } finally {
         setLoading(false);
+        return;
       }
-    };
+
+      const response = await API.get("/evaluations/assigned");
+
+      if (response.data && response.data.questions) {
+        const formattedQuestions = response.data.questions.map(q => {
+          if (q.type === "verdadero_falso") {
+            return {
+              ...q,
+              options: [
+                { _id: "true", text: "Verdadero" },
+                { _id: "false", text: "Falso" }
+              ]
+            };
+          }
+          return q;
+        });
+
+        setQuestions(formattedQuestions);
+      } else {
+        setMessage("No hay evaluación disponible.");
+        setMessageType("error");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Error al cargar la evaluación.");
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchEvaluation();
   }, []);
@@ -69,41 +83,51 @@ const EvaluationPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (Object.keys(answers).length !== questions.length) {
-      setMessage("Debes responder todas las preguntas antes de enviar.");
-      setMessageType("error");
-      return;
-    }
+  if (Object.keys(answers).length !== questions.length) {
+    setMessage("Debes responder todas las preguntas antes de enviar.");
+    setMessageType("error");
+    return;
+  }
 
-    setLoading(true);
-    setMessage(null);
+  setLoading(true);
+  setMessage(null);
 
-    try {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
+  try {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
 
-      const formattedAnswers = Object.keys(answers).map((questionId) => ({
-        questionId,
-        selectedOption: answers[questionId],
-      }));
+    const formattedAnswers = Object.keys(answers).map((questionId) => {
+      const question = questions.find(q => q.questionId === questionId);
+      let selectedOption = answers[questionId];
 
-      const response = await API.post("/evaluations/submit", {
-        userId,
-        answers: formattedAnswers,
-      });
-
-      if (response.data.status === "aprobado") {
-        setMessage("¡Felicidades! Has aprobado la evaluación.");
-        setMessageType("success");
-      } else {
-        setMessage("No aprobaste la evaluación. Inténtalo más tarde.");
-        setMessageType("error");
+      if (question.type === "verdadero_falso") {
+        selectedOption = selectedOption === "Verdadero";
       }
-    } catch {
-      setMessage("Error al enviar las respuestas.");
+
+      return {
+        questionId,
+        selectedOption
+      };
+    });
+
+    const response = await API.post("/evaluations/submit", {
+      userId,
+      answers: formattedAnswers
+    });
+
+    if (response.data.status === "aprobado") {
+      setMessage("¡Felicidades! Has aprobado la evaluación.");
+      setMessageType("success");
+    } else {
+      setMessage("No aprobaste la evaluación. Inténtalo más tarde.");
       setMessageType("error");
-    } finally {
-      setLoading(false);
+    }
+  } catch (err) {
+    console.error(err);
+    setMessage("Error al enviar las respuestas.");
+    setMessageType("error");
+  } finally {
+    setLoading(false);
     }
   };
 
