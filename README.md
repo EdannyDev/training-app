@@ -1,4 +1,4 @@
-# 🚀Training App - Frontend
+# 🚀Software de Capacitación - Frontend
 
 ## 📌Descripción  
 **Training App** es el frontend de un sistema de capacitación para el uso de un **ERP empresarial**.  
