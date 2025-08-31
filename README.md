@@ -1,43 +1,51 @@
-🚀Training App - Frontend
+# 🚀Training App - Frontend
 
-📌Descripción
-Training App es el frontend de un sistema de capacitación para el uso de un ERP empresarial. 
-Permite a los usuarios completar cursos asignados según su rol, seguir su progreso en tiempo real y acceder a FAQs.
+## 📌Descripción  
+**Training App** es el frontend de un sistema de capacitación para el uso de un **ERP empresarial**.  
 
-Los administradores pueden:
--Gestionar capacitaciones, usuarios y FAQs.
--Ver el progreso de los usuarios mientras cursan sus capacitaciones.
--Recibir notificaciones por correo electrónico cuando un usuario aprueba una evaluación asignada automáticamente por el sistema, indicando quién aprobó y su puntaje.
+**Usuarios pueden:**  
+- Completar cursos asignados según su rol.  
+- Seguir su progreso en tiempo real.  
+- Acceder a FAQs.  
 
-Este proyecto es ideal para empresas que buscan automatizar la formación y seguimiento de su personal de manera eficiente.
+**Administradores pueden:**  
+- Gestionar capacitaciones, usuarios y FAQs.  
+- Ver el progreso de los usuarios mientras cursan.  
+- Recibir notificaciones por correo al aprobar una evaluación (con nombre y puntaje).  
 
-🛠️Tecnologías utilizadas
--Framework: Next.js
--Gestión de datos y llamadas a API: Axios
--Estilos: Emotion Styled
--Gestor de paquetes: Yarn
--Almacenamiento de imágenes: Cloudinary
+**Este proyecto es ideal para empresas que buscan automatizar la formación y seguimiento de su personal.**  
 
-⚙️Instalación y ejecución
+## 🛠️Tecnologías utilizadas  
 
-1.-Clonar el repositorio:
+- **Framework:** Next.js  
+- **Gestión de datos / API:** Axios  
+- **Estilos:** Emotion Styled  
+- **Gestor de paquetes:** Yarn  
+- **Almacenamiento de imágenes:** Cloudinary  
+
+## ⚙️Instalación y ejecución  
+
+```bash
+# 1. Clonar el repositorio
 git clone https://github.com/EdannyDev/training-app.git
 
-2.-Instalar dependencias:
+# 2. Instalar dependencias
 yarn install
 
-3.-Ejecutar la aplicación:
+# 3. Ejecutar la aplicación
 yarn dev
 
-4.-Abrir en el navegador:
+# 4. Abrir en el navegador
 http://localhost:3000
 
-✨Características principales
--Módulo de capacitación: seguimiento del progreso en tiempo real por usuario.
--Módulo de FAQs: acceso rápido a preguntas frecuentes.
--Gestión administrativa: administrar capacitaciones, usuarios y FAQs.
--Evaluaciones automáticas: asignadas por el sistema tras completar todas las capacitaciones asignadas según el rol del usuario.
--Notificaciones por correo: al aprobar una evaluación, el administrador recibe un email indicando quién aprobó y el puntaje obtenido.
+```
 
-🔗Enlaces útiles
+## ✨Características principales
+- Módulo de capacitación: seguimiento del progreso en tiempo real.
+- Módulo de FAQs: acceso rápido a preguntas frecuentes.
+- Gestión administrativa: administrar capacitaciones, usuarios y FAQs.
+- Evaluaciones automáticas: asignadas por el sistema según el rol del usuario.
+- Notificaciones por correo: informe al aprobar evaluaciones con puntaje.
+
+## 🔗Enlaces útiles
 Backend: https://github.com/EdannyDev/backend-training
