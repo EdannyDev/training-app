@@ -1,7 +1,8 @@
 # 🚀Software de Capacitación - Frontend
 
 ## 📌Descripción  
-**Training App** es el frontend de un sistema de capacitación para el uso de un **ERP empresarial**.  
+**Training App** es el frontend de un sistema de capacitación para el uso de un **ERP empresarial**.
+Este proyecto fue desarrollado como parte de mi **segunda estadía profesional** en la empresa **DIMMMSA**.
 
 **Usuarios pueden:**  
 - Completar cursos asignados según su rol.  
